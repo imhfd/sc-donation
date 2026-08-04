@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script>document.documentElement.classList.add("js");</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: #0F0D0C; color: #F0EAD9; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: #F0EAD9; text-decoration: none; }
+  a:hover { color: #C89A3C; }
+  *:focus-visible { outline: 1.5px solid #C89A3C; outline-offset: 3px; }
+  h1, h2, h3 { font-weight: var(--sc-heading-weight, 700) !important; }
+  [data-cta] { font-weight: var(--sc-cta-weight, 500) !important; font-size: var(--sc-cta-size, 12px) !important; letter-spacing: var(--sc-cta-tracking, 0.2em) !important; }
+  p, li, body { font-weight: var(--sc-body-weight, 400); }
+  .rv { opacity: 1; transform: none; transition: opacity 560ms cubic-bezier(0.22,1,0.36,1), transform 560ms cubic-bezier(0.22,1,0.36,1); }
+  .js .rv { opacity: 0; transform: translateY(10px); }
+  .js .rv.rv-in { opacity: 1; transform: none; }
+  .sc-header-inner { height: 70px; display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 0 clamp(18px, 4vw, 56px); }
+  .sc-logo { height: 40px; width: auto; display: block; flex: 0 1 auto; }
+  .sc-nav { display: flex; align-items: center; gap: clamp(14px, 2.4vw, 32px); flex-shrink: 0; }
+  .sc-nav-link { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(240,234,217,0.68); white-space: nowrap; }
+  .sc-nav-link:hover { color: #C89A3C; }
+  .short-label { display: none; }
+  .amount-ticket { min-height: 66px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; border-radius: 8px; border: 1px solid rgba(15,13,12,0.18); background: rgba(255,255,255,0.25); color: #0F0D0C; cursor: pointer; transition: background 260ms ease, color 260ms ease, border-color 260ms ease, transform 220ms ease; }
+  .amount-ticket:hover { transform: translateY(-1px); border-color: rgba(200,154,60,0.75); }
+  .amount-ticket.is-selected { background: #0F0D0C; color: #F0EAD9; border-color: #C89A3C; box-shadow: inset 0 0 0 3px #0F0D0C, inset 0 0 0 4px rgba(200,154,60,0.55); }
+  .amount-ticket-value { font-size: 21px; font-weight: 650; letter-spacing: -0.02em; }
+  .amount-ticket-label { font-family: 'IBM Plex Mono', monospace; font-size: 8.5px; letter-spacing: 0.16em; text-transform: uppercase; opacity: 0.7; }
+  .counter-row { display: flex; align-items: center; flex-wrap: wrap; gap: clamp(10px, 2vw, 22px); }
+  .counter-display { min-width: 4.4em; display: inline-flex; align-items: center; gap: 0.08em; font-family: Georgia, 'Times New Roman', serif; font-size: clamp(54px, 7vw, 86px); line-height: 1; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .counter-static { display: inline-flex; align-items: center; height: 1.14em; line-height: 1.14em; }
+  .roll-cell { position: relative; display: inline-block; width: 0.72em; height: 1.14em; overflow: hidden; vertical-align: middle; border: 1px solid rgba(15,13,12,0.18); border-radius: 6px; background: #E9E1D0; box-shadow: inset 0 1px 2px rgba(15,13,12,0.08); }
+  .roll-cell::after { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: rgba(15,13,12,0.2); z-index: 3; pointer-events: none; }
+  .roll-strip { display: block; will-change: transform; }
+  .roll-strip > span { display: flex; align-items: center; justify-content: center; width: 100%; height: 1.14em; line-height: 1.14em; color: #0F0D0C; }
+  .counter-unit { font-size: clamp(16px, 1.5vw, 20px); color: rgba(15,13,12,0.66); font-weight: 500; letter-spacing: 0; white-space: nowrap; }
+  [data-cta]:hover { opacity: 0.88; }
+  @media (max-width: 767px) {
+    .sc-header-inner { height: 62px; gap: 8px; padding: 0 14px; }
+    .sc-logo { height: 31px; max-width: 122px; }
+    .sc-nav { gap: 10px; }
+    .sc-nav-link { font-size: 8.5px; letter-spacing: 0.11em; }
+    .full-label { display: none; }
+    .short-label { display: inline; }
+    .sc-nav [data-cta='nav'] { min-height: 40px !important; padding: 0 13px !important; font-size: 9px !important; letter-spacing: 0.13em !important; }
+    .counter-display { font-size: clamp(48px, 17vw, 68px); min-width: 3.7em; }
+  }
+  .ld { opacity: 0; transform: translateY(14px); animation: riseIn 700ms cubic-bezier(0.22,1,0.36,1) forwards; }
+  .ld1 { animation-delay: 60ms; }
+  .ld2 { animation-delay: 150ms; }
+  .ld3 { animation-delay: 240ms; }
+  .ld4 { animation-delay: 330ms; }
+  .ld5 { animation-delay: 420ms; }
+  @keyframes riseIn { to { opacity: 1; transform: none; } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .rv, .ld { opacity: 1 !important; transform: none !important; transition: none !important; animation: none !important; }
+  }
+</style>
+
+<div style="max-width: 1440px; margin: 0 auto; background: #0F0D0C;">
+
+  <header style="position: relative; z-index: 70; background: #0F0D0C; border-bottom: 1px solid rgba(240,234,217,0.16);">
+    <div class="sc-header-inner">
+      <a href="#top" aria-label="Sacred Chronicles home" style="display: flex; align-items: center; min-width: 0;">
+        <img class="sc-logo" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iTGF5ZXJfMiIgZGF0YS1uYW1lPSJMYXllciAyIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMjgzLjMzIDYzMC45MiI+CiAgPGRlZnM+CiAgICA8c3R5bGU+CiAgICAgIC5jbHMtMSwgLmNscy0yIHsKICAgICAgICBpc29sYXRpb246IGlzb2xhdGU7CiAgICAgIH0KCiAgICAgIC5jbHMtMiB7CiAgICAgICAgZm9udC1mYW1pbHk6IEZyYXVuY2VzMTQ0cHQtQm9sZCwgJ0ZyYXVuY2VzIDE0NHB0JzsKICAgICAgICBmb250LXNpemU6IDQxMS43MXB4OwogICAgICAgIGZvbnQtd2VpZ2h0OiA3MDA7CiAgICAgIH0KCiAgICAgIC5jbHMtMiwgLmNscy0zIHsKICAgICAgICBmaWxsOiAjZWVlOwogICAgICB9CiAgICA8L3N0eWxlPgogIDwvZGVmcz4KICA8ZyBpZD0iTGF5ZXJfMi0yIiBkYXRhLW5hbWU9IkxheWVyIDIiPgogICAgPGcgaWQ9IkxheWVyXzEtMiIgZGF0YS1uYW1lPSJMYXllciAxLTIiPgogICAgICA8ZyBjbGFzcz0iY2xzLTEiPgogICAgICAgIDx0ZXh0IGNsYXNzPSJjbHMtMiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNDU5LjE4IDM0OS45NSkiPjx0c3BhbiB4PSIwIiB5PSIwIj5TYWNyZWQ8L3RzcGFuPjwvdGV4dD4KICAgICAgPC9nPgogICAgICA8Zz4KICAgICAgICA8cGF0aCBjbGFzcz0iY2xzLTMiIGQ9Ik0zMDYuMjMsNTA4LjY3Yy0xLjE1LDE3LjA2LTUuNDUsMzMtMTIuOTEsNDcuODQtNy40NiwxNC44NC0xNy40NiwyNy44NC0zMC4wMSwzOC45OS0xMi41NCwxMS4xNS0yNy4xOCwxOS44NC00My45MSwyNi4wNy0xNi43Myw2LjIzLTM0LjkzLDkuMzUtNTQuNiw5LjM1LTM0LjExLDAtNjMuNDYtNy4yMi04OC4wNi0yMS42NS0yNC42LTE0LjQzLTQzLjU0LTM0LjY0LTU2LjgyLTYwLjYzQzYuNjQsNTIyLjY1LDAsNDkyLjE5LDAsNDU3LjI2YzAtMjcuMjIsNC4xNC01Mi4xLDEyLjQyLTc0LjY1LDguMjgtMjIuNTUsMjAuMDUtNDIuMDIsMzUuMy01OC40MiwxNS4yNS0xNi40LDMzLjQ5LTI5LjA2LDU0LjczLTM4LDIxLjIzLTguOTQsNDQuOC0xMy40LDcwLjcyLTEzLjQsMTQuNDMsMCwyNi44MSwxLjQ4LDM3LjE0LDQuNDNzMTguNTMsNS45NSwyNC42LDguOThjNi4wNiwzLjA0LDkuOTIsNC41NSwxMS41Niw0LjU1LDIuNDYsMCw2LjMxLTEuNDgsMTEuNTYtNC40Myw1LjI1LTIuOTUsMTAuMzMtNS45LDE1LjI1LTguODVzOC4wMy00LjQzLDkuMzUtNC40M2MuODIsMCwxLjU2LjM3LDIuMjEsMS4xMXMxLjE1LDIuMDEsMS40OCwzLjgxbDIxLjQsMTA3Ljk4Yy4zMywxLjY0LjM3LDIuOTEuMTIsMy44MXMtMS4wMywxLjUyLTIuMzQsMS44NWMtMS4xNS4xNy0yLjA5LS4wOC0yLjgzLS43NC0uNzQtLjY1LTEuNTItMS44OC0yLjM0LTMuNjktOS44NC0yNi4yMy0yMC41NC00Ni45NC0zMi4xLTYyLjExcy0yMy4zNy0yNS45OS0zNS40Mi0zMi40Ny0yMy43NC05LjcyLTM1LjA1LTkuNzItMjIuMjIsMy4wNC0zMi4yMiw5LjFjLTEwLDYuMDctMTguOSwxNS4wNS0yNi42OSwyNi45My03Ljc5LDExLjg5LTEzLjg2LDI2LjYxLTE4LjIsNDQuMTUtNC4zNSwxNy41NS02LjUyLDM3Ljg4LTYuNTIsNjEsMCwzOC4wNSw0LjM0LDY5LjI4LDEzLjA0LDkzLjcxLDguNjksMjQuNDQsMjAuNyw0Mi40NywzNi4wMyw1NC4xMSwxNS4zMywxMS42NSwzMi45MiwxNy40Niw1Mi43NiwxNy40NiwyMC44MiwwLDM5LjE1LTYuNjgsNTQuOTctMjAuMDUsMTUuODItMTMuMzYsMjYuMTEtMzMuODIsMzAuODctNjEuMzcuMzMtMS4xNS42NS0yLjAxLjk4LTIuNTguMzMtLjU3LjgyLS44NiwxLjQ4LS44Ni44MiwwLDEuMzkuNDEsMS43MiwxLjIzcy40MSwxLjgxLjI1LDIuOTV2LjAyWiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTQyOC45NywyNTUuNTd2MzUyLjIzYzAsMi42Mi40NSw0LjcyLDEuMzUsNi4yNy45LDEuNTYsMi40MiwyLjU4LDQuNTUsMy4wN2w5LjM1LDIuMjFjMS45Ny40OSwyLjk1LDEuMjMsMi45NSwyLjIxLDAsMS4zMS0uODIsMS45Ny0yLjQ2LDEuOTdoLTEyMC41MmMtLjY2LDAtMS4yMy0uMTYtMS43Mi0uNDlzLS43NC0uODItLjc0LTEuNDhjMC0uNDkuMi0uOTQuNjItMS4zNXMxLjE5LS43LDIuMzQtLjg2bDkuMzUtMi4yMWMyLjI5LS40OSwzLjg1LTEuNTEsNC42Ny0zLjA3czEuMjMtMy42NSwxLjIzLTYuMjd2LTMyMC4yNWMwLTEuMzEtLjMzLTIuMjktLjk4LTIuOTUtLjY2LS42NS0xLjcyLS45OC0zLjItLjk4aC05LjU5Yy0xLjE1LDAtMS45My0uMi0yLjM0LS42MS0uNDEtLjQxLS42MS0uOTQtLjYxLTEuNnMuMjUtMS4xNS43NC0xLjQ4Yy40OS0uMzMsMS4wNi0uNTcsMS43Mi0uNzRsOTMuMjItMjUuODNjMS45Ny0uNDksMy4zMi0uODIsNC4wNi0uOTguNzQtLjE2LDEuNi0uMjUsMi41OC0uMjUsMS4xNSwwLDIuMDEuMzMsMi41OC45OC41Ny42Ni44NiwxLjQ4Ljg2LDIuNDZoLS4wMVpNNDIxLjU5LDQ1Ni41MmwtMy40NC0zLjY5LDkuODQtOC42MWMxOC4zNi0xNi4wNywzNS4zLTI3Ljc1LDUwLjc5LTM1LjA1LDE1LjUtNy4yOSwyOS4zMS0xMC45NSw0MS40NC0xMC45NSwxNS4yNSwwLDI3LjYzLDQuNTksMzcuMTQsMTMuNzcsOS41MSw5LjE5LDE0LjI3LDI0LjExLDE0LjI3LDQ0Ljc3djE1MS4wMmMwLDIuNjIuNDUsNC43MiwxLjM1LDYuMjcuOSwxLjU2LDIuNDIsMi41OCw0LjU1LDMuMDdsOS4zNSwyLjIxYzEuMTUuMTcsMS45Mi40NSwyLjM0Ljg2LjQxLjQxLjYyLjg2LjYyLDEuMzUsMCwuNjYtLjIxLDEuMTUtLjYyLDEuNDgtLjQxLjMzLTEuMDMuNDktMS44NC40OWgtMTIwLjUzYy0xLjY0LDAtMi40Ni0uNjUtMi40Ni0xLjk3LDAtLjk4Ljk4LTEuNzIsMi45NS0yLjIxbDkuMzUtMi4yMWMyLjI5LS40OSwzLjg1LTEuNTEsNC42Ny0zLjA3czEuMjMtMy42NSwxLjIzLTYuMjd2LTE0MS42OGMwLTEwLjE3LTEuOTMtMTcuNTQtNS43OC0yMi4xNC0zLjg1LTQuNTktOS42NC02Ljg5LTE3LjM0LTYuODktNC45MiwwLTkuODQuOTgtMTQuNzYsMi45NXMtOS41MSw0Ljc2LTEzLjc3LDguMzZsLTkuMzUsOC4xMnYuMDJaIi8+CiAgICAgICAgPHBhdGggY2xhc3M9ImNscy0zIiBkPSJNNzA3LjksNDAzLjY0djIwMS43YzAsMi4xMy41Nyw0LjEsMS43Miw1LjksMS4xNSwxLjgxLDIuNzEsMi45NSw0LjY3LDMuNDRsMjQuMTEsNC45MmMuOTguMTcsMS42NC40MSwxLjk3Ljc0LjMzLjMzLjQ5Ljc0LjQ5LDEuMjMsMCwuNjYtLjI1LDEuMTUtLjc0LDEuNDgtLjQ5LjMzLTEuMjMuNDktMi4yMS40OWgtMTM0LjNjLS45OCwwLTEuNzItLjItMi4yMS0uNjEtLjQ5LS40MS0uNzQtLjg2LS43NC0xLjM1cy4zMy0uOTguOTgtMS40OGMuNjUtLjQ5LDEuNDgtLjgyLDIuNDYtLjk4bDguODYtMS45N2MyLjI5LS40OSwzLjg1LTEuNDMsNC42Ny0yLjgzLjgyLTEuMzksMS4yMy0zLjA3LDEuMjMtNS4wNHYtMTc4LjA4YzAtMS40OC0uMjktMi42Ni0uODYtMy41Ny0uNTgtLjktMS42LTEuMzUtMy4wNy0xLjM1aC0xMC44MmMtLjY2LDAtMS4yMy0uMi0xLjcyLS42Mi0uNDktLjQxLS43NC0uODYtLjc0LTEuMzVzLjI1LS45OC43NC0xLjQ4Yy40OS0uNDksMS4yMy0uODIsMi4yMS0uOThsOTMuNDctMjEuMTVjMS40OC0uMzMsMi42Ni0uNTcsMy41Ny0uNzQuOS0uMTYsMS44NS0uMjUsMi44My0uMjUsMS4zMSwwLDIuMjEuNDEsMi43MSwxLjIzLjQ5LjgyLjc0LDEuNzIuNzQsMi43MWgtLjAyWk03MDMuOTYsNDkwLjcxYzAtMjAuMzMsMy4yNC0zNy4zNSw5LjcyLTUxLjA0czE0LjgtMjQuMDIsMjQuOTctMzAuOTksMjAuNzQtMTAuNDUsMzEuNzMtMTAuNDVjMTMuNDQsMCwyMy42OSw0LjQzLDMwLjc1LDEzLjI4LDcuMDUsOC44NiwxMC41OCwyMi4zLDEwLjU4LDQwLjM0cy00LjE4LDMwLjgzLTEyLjU0LDM5LjM2LTE4Ljg2LDEyLjc5LTMxLjQ4LDEyLjc5Yy0xMS42NSwwLTIwLjA5LTMuMTYtMjUuMzQtOS40N3MtOC4yLTE1LjQ1LTguODUtMjcuNDNsLS40OS05LjM1Yy0uMTctMy42MS0uOS02LjU2LTIuMjEtOC44Ni0xLjMxLTIuMjktMy42OS0zLjQ0LTcuMTMtMy40NC0zLjEyLDAtNS44NiwxLjY0LTguMjQsNC45MnMtNC4yMiw4LjQ1LTUuNTMsMTUuNWMtMS4zMSw3LjA1LTEuOTcsMTYuMTUtMS45NywyNy4zbC0zLjk0LTIuNDZoLS4wM1oiLz4KICAgICAgICA8cGF0aCBjbGFzcz0iY2xzLTMiIGQ9Ik05NDUuMDEsMzk4LjIzYzIzLjQ1LDAsNDQuMTUsNC45Miw2Mi4xMSwxNC43NnMzMi4wMSwyMy40OSw0Mi4xOCw0MC45NWMxMC4xNywxNy40NiwxNS4yNSwzNy41OSwxNS4yNSw2MC4zOHMtNS4yOSw0Mi4wMi0xNS44Nyw1OS4xNmMtMTAuNTgsMTcuMTQtMjUuMTMsMzAuNTktNDMuNjYsNDAuMzQtMTguNTMsOS43NS0zOS44NSwxNC42NC02My45NSwxNC42NHMtNDQuMTUtNC44NC02Mi4xMS0xNC41MWMtMTcuOTYtOS42Ny0zMi4wMi0yMy4wOC00Mi4xOC00MC4yMi0xMC4xNy0xNy4xMy0xNS4yNS0zNi45My0xNS4yNS01OS40czUuMzctNDIuMTgsMTYuMTEtNTkuNjVjMTAuNzQtMTcuNDYsMjUuNDItMzEuMjQsNDQuMDMtNDEuMzIsMTguNjEtMTAuMDgsMzkuNzItMTUuMTMsNjMuMzQtMTUuMTNoMFpNOTU5LjAzLDYyMy41NGM1LjktLjgyLDEwLjI5LTUuNDEsMTMuMTYtMTMuNzcsMi44Ny04LjM2LDQuMjItMjAuODIsNC4wNi0zNy4zOS0uMTctMTYuNTYtMi4wNS0zNy4zOS01LjY2LTYyLjQ4cy03LjU5LTQ1LjYzLTExLjkzLTYxLjYxYy00LjM1LTE1Ljk5LTkuMDYtMjcuNjMtMTQuMTQtMzQuOTMtNS4wOC03LjI5LTEwLjY2LTEwLjQ1LTE2LjczLTkuNDctNS43NC45OC0xMC4wNSw1LjY2LTEyLjkxLDE0LjAyLTIuODcsOC4zNi00LjE0LDIwLjc1LTMuODEsMzcuMTQuMzMsMTYuNCwyLjIxLDM3LjE0LDUuNjYsNjIuMjMsMy42MSwyNS4wOSw3LjU0LDQ1LjYzLDExLjgxLDYxLjYyLDQuMjYsMTUuOTksOC45NCwyNy42MywxNC4wMiwzNC45M3MxMC41OCwxMC41MywxNi40OCw5LjcyaC0uMDFaIi8+CiAgICAgICAgPHBhdGggY2xhc3M9ImNscy0zIiBkPSJNMTE4NS41Nyw0MDAuNjl2MjA3LjExYzAsMi42Mi40NSw0LjcyLDEuMzUsNi4yNy45LDEuNTYsMi40MiwyLjU4LDQuNTUsMy4wN2w5LjM1LDIuMjFjMS45Ny40OSwyLjk1LDEuMjMsMi45NSwyLjIxLDAsMS4zMS0uODIsMS45Ny0yLjQ2LDEuOTdoLTEyMC41MmMtLjY2LDAtMS4yMy0uMTYtMS43Mi0uNDlzLS43NC0uODItLjc0LTEuNDhjMC0uNDkuMi0uOTQuNjItMS4zNXMxLjE5LS43LDIuMzQtLjg2bDkuMzUtMi4yMWMyLjI5LS40OSwzLjg1LTEuNTEsNC42Ny0zLjA3LjgyLTEuNTYsMS4yMy0zLjY1LDEuMjMtNi4yN3YtMTc1LjEzYzAtMS4zMS0uMzMtMi4yOS0uOTgtMi45NS0uNjYtLjY1LTEuNzItLjk4LTMuMi0uOThoLTkuNTljLTEuMTUsMC0xLjkzLS4yLTIuMzQtLjYxLS40MS0uNDEtLjYxLS45NC0uNjEtMS42cy4yNS0xLjE1Ljc0LTEuNDhjLjQ5LS4zMywxLjA2LS41NywxLjcyLS43NGw5My4yMi0yNS44M2MxLjk3LS40OSwzLjMyLS44Miw0LjA2LS45OC43NC0uMTYsMS42LS4yNSwyLjU4LS4yNSwxLjE1LDAsMi4wMS4zMywyLjU4Ljk4LjU3LjY2Ljg2LDEuNDguODYsMi40NmgtLjAxWk0xMTc4LjE5LDQ1Ni41MmwtMy40NC0zLjY5LDkuODQtOC42MWMxOC4zNi0xNi4wNywzNS4zLTI3Ljc1LDUwLjc5LTM1LjA1LDE1LjUtNy4yOSwyOS4zMS0xMC45NSw0MS40NC0xMC45NSwxNS4yNSwwLDI3LjYzLDQuNTksMzcuMTQsMTMuNzcsOS41MSw5LjE5LDE0LjI3LDI0LjExLDE0LjI3LDQ0Ljc3djE1MS4wMmMwLDIuNjIuNDUsNC43MiwxLjM1LDYuMjcuOSwxLjU2LDIuNDIsMi41OCw0LjU1LDMuMDdsOS4zNSwyLjIxYzEuMTUuMTcsMS45Mi40NSwyLjM0Ljg2LjQxLjQxLjYyLjg2LjYyLDEuMzUsMCwuNjYtLjIxLDEuMTUtLjYyLDEuNDgtLjQxLjMzLTEuMDMuNDktMS44NC40OWgtMTIwLjUzYy0xLjY0LDAtMi40Ni0uNjUtMi40Ni0xLjk3LDAtLjk4Ljk4LTEuNzIsMi45NS0yLjIxbDkuMzUtMi4yMWMyLjI5LS40OSwzLjg1LTEuNTEsNC42Ny0zLjA3LjgyLTEuNTYsMS4yMy0zLjY1LDEuMjMtNi4yN3YtMTQxLjY4YzAtMTAuMTctMS45My0xNy41NC01Ljc4LTIyLjE0LTMuODUtNC41OS05LjY0LTYuODktMTcuMzQtNi44OS00LjkyLDAtOS44NC45OC0xNC43NiwyLjk1cy05LjUxLDQuNzYtMTMuNzcsOC4zNmwtOS4zNSw4LjEydi4wMloiLz4KICAgICAgICA8cGF0aCBjbGFzcz0iY2xzLTMiIGQ9Ik0xNDY0LjAxLDQwMC42OXYyMDcuMTFjMCwyLjYyLjQ1LDQuNzIsMS4zNSw2LjI3LjksMS41NiwyLjQyLDIuNTgsNC41NSwzLjA3bDkuMzUsMi4yMWMxLjE1LjE3LDEuOTMuNDUsMi4zNC44Ni40MS40MS42MS44Ni42MSwxLjM1LDAsLjY2LS4yMSwxLjE1LS42MSwxLjQ4LS40MS4zMy0xLjAzLjQ5LTEuODUuNDloLTEyMC41MmMtLjY2LDAtMS4yMy0uMTYtMS43Mi0uNDlzLS43NC0uODItLjc0LTEuNDhjMC0uNDkuMi0uOTQuNjItMS4zNXMxLjE5LS43LDIuMzQtLjg2bDkuMzUtMi4yMWMyLjI5LS40OSwzLjg1LTEuNTEsNC42Ny0zLjA3LjgyLTEuNTYsMS4yMy0zLjY1LDEuMjMtNi4yN3YtMTc1LjEzYzAtMS4zMS0uMzMtMi4yOS0uOTgtMi45NS0uNjYtLjY1LTEuNzItLjk4LTMuMi0uOThoLTkuNTljLTEuMTUsMC0xLjkzLS4yLTIuMzQtLjYxLS40MS0uNDEtLjYxLS45NC0uNjEtMS42cy4yNS0xLjE1Ljc0LTEuNDhjLjQ5LS4zMywxLjA2LS41NywxLjcyLS43NGw5My4yMi0yNS44M2MxLjk3LS40OSwzLjMyLS44Miw0LjA2LS45OC43NC0uMTYsMS42LS4yNSwyLjU4LS4yNSwxLjE1LDAsMi4wMS4zMywyLjU4Ljk4LjU3LjY2Ljg2LDEuNDguODYsMi40NmgtLjAxWiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTE3MDIuODUsNDYzLjE2YzAsMTIuMy0zLjQ5LDIyLjEtMTAuNDUsMjkuMzktNi45Nyw3LjMtMTYuNzcsMTAuOTUtMjkuMzksMTAuOTVzLTIyLjc5LTMuODEtMzAuMDEtMTEuNDQtMTAuODItMTguNzMtMTAuODItMzMuMzN2LTI0LjZjMC05Ljg0LTEuNjQtMTcuMy00LjkyLTIyLjM4LTMuMjgtNS4wOC03LjYzLTcuNjMtMTMuMDQtNy42My01Ljc0LDAtMTAuNzQsMi44My0xNSw4LjQ5LTQuMjcsNS42Ni03LjUsMTMuOTQtOS43MiwyNC44NC0yLjIxLDEwLjkxLTMuMzIsMjQuMjMtMy4zMiwzOS45NywwLDIwLjk5LDIuNzQsMzguNyw4LjI0LDUzLjEzLDUuNDksMTQuNDMsMTMuMTIsMjUuMzMsMjIuODgsMzIuNzEsOS43NSw3LjM4LDIxLjAzLDExLjA3LDMzLjgyLDExLjA3LDE0LjU5LDAsMjYuODEtMi41OCwzNi42NS03Ljc1czE2LjA3LTEzLjU3LDE4LjY5LTI1LjIxYy4xNi0uODIuNDUtMS4zOS44Ni0xLjcyLjQxLS4zMy44Ni0uNDEsMS4zNS0uMjUuNDkuMTcuODYuNDksMS4xMS45OHMuMjgsMS4xNS4xMiwxLjk3Yy0yLjc5LDE4LjA0LTguNzcsMzMuNDUtMTcuOTYsNDYuMjRzLTIxLjAzLDIyLjYzLTM1LjU0LDI5LjUyLTMxLjI4LDEwLjMzLTUwLjMsMTAuMzNjLTIwLjE3LDAtMzguMTMtNC4wNi01My44Ny0xMi4xOHMtMjguMTMtMjAuMjUtMzcuMTQtMzYuNGMtOS4wMi0xNi4xNS0xMy41My0zNi4yLTEzLjUzLTYwLjE0czUuMDgtNDQuNzcsMTUuMjUtNjIuOTcsMjQuMTQtMzIuNTEsNDEuOTQtNDIuOTJjMTcuNzktMTAuNDEsMzguMjUtMTUuNjIsNjEuMzctMTUuNjIsMjAuNjYsMCwzNy44NCwyLjgzLDUxLjUzLDguNDksMTMuNjksNS42NiwyMy45OCwxMy4zNywzMC44NywyMy4xMiw2Ljg5LDkuNzYsMTAuMzMsMjAuODcsMTAuMzMsMzMuMzNoMFoiLz4KICAgICAgICA8cGF0aCBjbGFzcz0iY2xzLTMiIGQ9Ik0xODI1LjM0LDI1NS41N3YzNTIuMjNjMCwyLjYyLjQ1LDQuNzIsMS4zNSw2LjI3LjksMS41NiwyLjQyLDIuNTgsNC41NSwzLjA3bDkuMzUsMi4yMWMxLjE1LjE3LDEuOTMuNDUsMi4zNC44Ni40MS40MS42Mi44Ni42MiwxLjM1LDAsLjY2LS4yMSwxLjE1LS42MiwxLjQ4LS40MS4zMy0xLjAzLjQ5LTEuODQuNDloLTEyMC41MmMtLjY2LDAtMS4yMy0uMTYtMS43Mi0uNDlzLS43NC0uODItLjc0LTEuNDhjMC0uNDkuMi0uOTQuNjEtMS4zNXMxLjE5LS43LDIuMzQtLjg2bDkuMzUtMi4yMWMyLjI5LS40OSwzLjg1LTEuNTEsNC42Ny0zLjA3LjgyLTEuNTYsMS4yMy0zLjY1LDEuMjMtNi4yN3YtMzIwLjI1YzAtMS4zMS0uMzMtMi4yOS0uOTgtMi45NS0uNjYtLjY1LTEuNzItLjk4LTMuMi0uOThoLTkuNTljLTEuMTUsMC0xLjkzLS4yLTIuMzQtLjYxLS40MS0uNDEtLjYyLS45NC0uNjItMS42cy4yNS0xLjE1Ljc0LTEuNDhjLjQ5LS4zMywxLjA2LS41NywxLjcyLS43NGw5My4yMi0yNS44M2MxLjk3LS40OSwzLjMyLS44Miw0LjA2LS45OC43NC0uMTYsMS42LS4yNSwyLjU4LS4yNSwxLjE1LDAsMi4wMS4zMywyLjU4Ljk4LjU3LjY2Ljg2LDEuNDguODYsMi40NmgwWiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTIwNzguMTksNTAxLjUzYzAsMS42NC0uNTMsMy4wNC0xLjYsNC4xOC0xLjA3LDEuMTUtMi44MywxLjcyLTUuMjksMS43MmgtMTUzLjk4di01LjloNjguMzhjMi45NSwwLDQuNDMtMS44LDQuNDMtNS40MSwwLTMyLjk2LTIuOTktNTYuNjEtOC45OC03MC45NnMtMTIuMTgtMjEuNTItMTguNTctMjEuNTJjLTQuNDMsMC04LjUzLDIuMzQtMTIuMyw3LjAxcy02Ljg1LDEyLjc1LTkuMjIsMjQuMjNjLTIuMzgsMTEuNDgtMy41NywyNy4zLTMuNTcsNDcuNDcsMCwzMy45NCw2LjgsNTguNjYsMjAuNDIsNzQuMTYsMTMuNjEsMTUuNSwzMS43MywyMy4yNCw1NC4zNiwyMy4yNCwxOC4yLDAsMzMtNC41NSw0NC40LTEzLjY1LDExLjQtOS4xLDE3LjA5LTIxLjI4LDE3LjA5LTM2LjUzLDAtLjgyLjItMS4zNS42MS0xLjYuNDEtLjI1LjctLjM3Ljg2LS4zNy40OSwwLC45NC4xNywxLjM1LjQ5LjQxLjMzLjYxLjk4LjYxLDEuOTcsMCwxOC42OS00LjcyLDM1LjQ2LTE0LjE0LDUwLjMtOS40MywxNC44NC0yMi4yNiwyNi41Ny0zOC40OSwzNS4xN3MtMzQuNiwxMi45MS01NS4xLDEyLjkxYy0yMi4zLDAtNDIuMDYtNC43Ni01OS4yOC0xNC4yN3MtMzAuNzUtMjIuNzEtNDAuNTktMzkuNmMtOS44NC0xNi44OS0xNC43Ni0zNi4zMi0xNC43Ni01OC4zLDAtMjQuNiw0LjgzLTQ1LjcxLDE0LjUxLTYzLjM0LDkuNjctMTcuNjMsMjMuNC0zMS4xNSw0MS4yLTQwLjU5LDE3Ljc5LTkuNDMsMzguNzQtMTQuMTQsNjIuODQtMTQuMTQsMjEuNDgsMCw0MC4wNSw0LjUxLDU1LjcxLDEzLjUzLDE1LjY2LDkuMDIsMjcuNzUsMjEuMzIsMzYuMjgsMzYuOSw4LjUyLDE1LjU4LDEyLjc5LDMzLjIxLDEyLjc5LDUyLjg4bC4wMy4wMloiLz4KICAgICAgICA8cGF0aCBjbGFzcz0iY2xzLTMiIGQ9Ik0yMTgzLjk2LDQwNS4xMWMtOC44NiwwLTE1Ljc0LDIuMTMtMjAuNjYsNi40cy03LjM4LDEwLTcuMzgsMTcuMjJjMCw1LjQxLDEuMjcsMTAuMzcsMy44MSwxNC44OHM3LjAxLDguNzcsMTMuNDEsMTIuNzljNi40LDQuMDIsMTUuMjUsNy45MSwyNi41NiwxMS42OCwyMS42NSw3LjM4LDM4LjUzLDE1LjQyLDUwLjY3LDI0LjExLDEyLjEzLDguNjksMjAuNjYsMTguMzcsMjUuNTgsMjkuMDIsNC45MiwxMC42Niw3LjM4LDIyLjYzLDcuMzgsMzUuOTEsMCwyMy4xMi03Ljc1LDQwLjc5LTIzLjI0LDUzLjAxLTE1LjUsMTIuMjItMzYuNDUsMTguMzMtNjIuODQsMTguMzMtMTAuMzMsMC0xOC44Mi0uOTUtMjUuNDYtMi44My02LjY0LTEuODktMTEuNzMtMy43Ny0xNS4yNS01LjY2LTMuNTMtMS44OC01Ljg3LTIuODMtNy4wMS0yLjgzLTEuOTcsMC01Ljc0Ljk1LTExLjMxLDIuODMtNS41OCwxLjg5LTExLjExLDMuNzctMTYuNiw1LjY2LTUuNSwxLjg4LTkuMTQsMi44My0xMC45NSwyLjgzLS42NiwwLTEuNC0uMjEtMi4yMS0uNjItLjgyLS40MS0xLjQtMS4zNS0xLjcyLTIuODNsLTEwLjMzLTc4LjIyYy0uMTctMS44LS4xNy0zLjIsMC00LjE4LjE2LS45OC40OS0xLjU2Ljk4LTEuNzIuNDktLjMzLjk4LS4zNywxLjQ4LS4xMi40OS4yNS45OC43OCwxLjQ4LDEuNiwxMi40NiwyMC42NiwyMy43NCwzNi44MSwzMy44Miw0OC40NnMxOS44NCwxOS44NCwyOS4yNywyNC42YzkuNDMsNC43NiwxOS4zOSw3LjEzLDI5Ljg4LDcuMTMsOS4zNSwwLDE2LjM2LTIuMzgsMjEuMDMtNy4xM3M3LjAxLTExLjA3LDcuMDEtMTguOTRjMC02LjA2LTEuNDQtMTEuNi00LjMtMTYuNi0yLjg3LTUtOC4xNi05LjYzLTE1Ljg2LTEzLjktNy43MS00LjI2LTE4LjY5LTguMzYtMzIuOTYtMTIuMy0xOC44Ni01LjQxLTMzLjgyLTEyLjE4LTQ0Ljg5LTIwLjI5LTExLjA3LTguMTItMTguOTgtMTcuMy0yMy43NC0yNy41NXMtNy4xMy0yMS4zNi03LjEzLTMzLjMzYzAtMTUuNDEsMy43Ny0yOC42NiwxMS4zMS0zOS43Miw3LjU0LTExLjA3LDE3LjY3LTE5LjU5LDMwLjM4LTI1LjU4LDEyLjcxLTUuOTgsMjYuNjktOC45OCw0MS45NC04Ljk4LDkuMTgsMCwxNy4xMywxLjE1LDIzLjg2LDMuNDQsNi43MiwyLjMsMTIuMDksNC41OSwxNi4xMSw2Ljg5LDQuMDIsMi4zLDYuNDMsMy40NCw3LjI2LDMuNDQsMS4zMSwwLDQuNTktMS4wMiw5Ljg0LTMuMDcsNS4yNS0yLjA1LDEwLjUzLTQuMSwxNS44Ny02LjE1LDUuMzMtMi4wNSw4Ljg5LTMuMDcsMTAuNy0zLjA3LDEuMzEsMCwyLjUuNTMsMy41NywxLjYsMS4wNiwxLjA3LDEuNjgsMi44MywxLjg1LDUuMjlsOC4zNiw2NC40NGMuMzMsMi4xMy4zNywzLjY5LjEyLDQuNjdzLS43OCwxLjcyLTEuNiwyLjIxYy0uMTcuMTctLjQ5LjA0LS45OC0uMzdzLTEuMTUtLjk0LTEuOTctMS42Yy0xNS45MS0yNS4wOS0zMC42Mi00My4xNy00NC4xNS01NC4yNC0xMy41My0xMS4wNy0yNy4xOC0xNi42LTQwLjk1LTE2LjZoLS4wNFoiLz4KICAgICAgPC9nPgogICAgPC9nPgogICAgPGcgaWQ9InV1aWQtNmFkYTZkOGMtZGQ4NC00NmYyLTk2ZDEtZjQwMmQ5MTI4ZjhjIiBkYXRhLW5hbWU9IkxheWVyIDItMiI+CiAgICAgIDxnPgogICAgICAgIDxwb2x5Z29uIGNsYXNzPSJjbHMtMyIgcG9pbnRzPSIyMDk4LjUgMjU1LjcxIDIxODIuNjIgMzM5LjgzIDIxODIuNjIgMzM5LjgzIDIyODMuMzMgMzM5LjgzIDIyODMuMzMgMjM5LjEyIDIyODMuMzMgMjM5LjEyIDIxOTkuMjEgMTU1IDIxODIuNjIgMTcxLjU5IDIxODIuNjMgMjM5LjEyIDIxODIuNjIgMjM5LjEyIDIxODIuNjIgMjM5LjEyIDIxMTUuMDkgMjM5LjEyIDIwOTguNSAyNTUuNzEiLz4KICAgICAgICA8cG9seWdvbiBjbGFzcz0iY2xzLTMiIHBvaW50cz0iMTk1Mi4xMiAxNTguODggMTg2OCAyNDMgMTg2OCAyNDMgMTg2OCAzNDMuNyAxOTY4LjcxIDM0My43IDE5NjguNzEgMzQzLjcgMjA1Mi44MyAyNTkuNTkgMjAzNi4yNCAyNDMgMTk2OC43MSAyNDMgMTk2OC43MSAyNDMgMTk2OC43MSAyNDMgMTk2OC43MSAxNzUuNDcgMTk1Mi4xMiAxNTguODgiLz4KICAgICAgICA8cG9seWdvbiBjbGFzcz0iY2xzLTMiIHBvaW50cz0iMjAyNC40NCAzNDIuMjQgMjA3OS4yMSAyODcuNDggMjEzMi45NiAzNDEuMjMgMjAyNC40NCAzNDIuMjQiLz4KICAgICAgICA8cG9seWdvbiBjbGFzcz0iY2xzLTMiIHBvaW50cz0iMjA0My4xIDYwLjE1IDE5OTkuNzggNjAuMTUgMTk5OS43OCAxMDMuNDcgMTk2OS4xNCAxMzQuMSAxOTk5Ljc4IDE2NC43MyAxOTk5Ljc4IDIwOC4wNSAyMDQzLjEgMjA4LjA1IDIwNzMuNzMgMjM4LjY4IDIxMDQuMzYgMjA4LjA1IDIxNDcuNjggMjA4LjA1IDIxNDcuNjggMTY0LjczIDIxNzguMzEgMTM0LjEgMjE0Ny42OCAxMDMuNDcgMjE0Ny42OCA2MC4xNSAyMTA0LjM2IDYwLjE1IDIwNzMuNzMgMjkuNTIgMjA0My4xIDYwLjE1Ii8+CiAgICAgIDwvZz4KICAgIDwvZz4KICA8L2c+Cjwvc3ZnPg==" alt="Sacred Chronicles">
+      </a>
+      <nav class="sc-nav" aria-label="Primary navigation">
+        <a class="sc-nav-link" href="#vision"><span class="full-label">Our vision</span><span class="short-label">Vision</span></a>
+        <a class="sc-nav-link" href="#story"><span class="full-label">Our story</span><span class="short-label">Story</span></a>
+        <a href="#donate" data-cta="nav" style="display: flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 24px; background: #F0EAD9; color: #0F0D0C; border-radius: 9px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; white-space: nowrap;">Donate</a>
+      </nav>
+    </div>
+  </header>
+
+  <section id="top" data-screen-label="Hero" style="position: relative; min-height: clamp(560px, 92dvh, 860px); display: flex; align-items: center; overflow: hidden;">
+    <img src="https://sacred-chronicles.vercel.app/photos/hero-filming.jpg" alt="The Sacred Chronicles crew reviewing footage on a cinema camera among the palm groves" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center;">
+    <div aria-hidden="true" style="position: absolute; inset: 0; background: linear-gradient(90deg, rgba(15,13,12,0.96) 0%, rgba(15,13,12,0.8) 34%, rgba(15,13,12,0.24) 66%, rgba(15,13,12,0.08) 100%);"></div>
+    <div style="position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 22px; max-width: 640px; padding: clamp(48px, 8vw, 96px) clamp(20px, 4vw, 56px);">
+      <div class="ld ld1" style="display: flex; align-items: center; gap: 10px; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.22em; text-transform: uppercase; color: #C89A3C;">
+        <span style="width: 24px; height: 1px; background: #C89A3C; display: block;"></span>The living archive
+      </div>
+      <h1 class="ld ld2" style="margin: 0; font-size: clamp(46px, 5.4vw, 80px); line-height: 1.02; font-weight: 700; letter-spacing: -0.03em; color: #F0EAD9; text-wrap: balance; max-width: 15ch;">Stories worth seeing. History <span style="font-family: 'Instrument Serif', Georgia, serif; font-style: italic; font-weight: 400; letter-spacing: -0.01em; color: #C89A3C;">worth carrying.</span></h1>
+      <p class="ld ld3" style="margin: 0; max-width: 44ch; font-size: clamp(16px, 1.15vw, 18px); line-height: 1.6; color: rgba(240,234,217,0.8);">Sacred Chronicles creates cinematic films that preserve the people, places and stories that shaped the Muslim world.</p>
+      <p class="ld ld4" style="margin: -8px 0 0; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(240,234,217,0.68);">Filmed where history happened. Created for the Ummah.</p>
+      <div class="ld ld5" style="display: flex; align-items: center; gap: 22px; flex-wrap: wrap; margin-top: 4px;">
+        <a href="#donate" data-cta="hero" style="display: flex; align-items: center; justify-content: center; min-height: 56px; padding: 0 36px; background: #F0EAD9; color: #0F0D0C; border-radius: 9px; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; letter-spacing: 0.2em; text-transform: uppercase;" >Donate</a>
+        <a href="#vision" style="font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(240,234,217,0.8); border-bottom: 1px solid rgba(200,154,60,0.6); padding-bottom: 4px;">Discover the vision</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="donate" data-screen-label="Donation" style="background: #F0EAD9; color: #0F0D0C; display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); align-items: start; gap: clamp(28px, 4vw, 64px); padding: clamp(56px, 7vw, 104px) clamp(20px, 4vw, 56px);">
+    <div style="display: flex; flex-direction: column; gap: clamp(24px, 3vw, 34px); max-width: 620px;">
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        <h2 style="margin: 0; font-size: clamp(38px, 4.6vw, 68px); line-height: 1.02; font-weight: 700; letter-spacing: -0.03em; color: #0F0D0C;">Carry the <span style="font-family: 'Instrument Serif', Georgia, serif; font-style: italic; font-weight: 400; letter-spacing: -0.01em; color: #C89A3C;">story.</span></h2>
+        <p style="margin: 0; max-width: 48ch; font-size: clamp(16px, 1.15vw, 18px); line-height: 1.6; color: #0F0D0C;">Your monthly donation helps us create cinematic films that preserve the people, places and stories that shaped the Muslim world.</p>
+        <p style="margin: 0; max-width: 48ch; font-size: 15px; line-height: 1.6; color: rgba(15,13,12,0.66);">Choose an amount that feels comfortable. Every donation helps move the next film forward.</p>
+      </div>
+
+      <div id="amount-options" role="radiogroup" aria-label="Monthly donation amount" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; max-width: 560px;">
+        <button class="amount-ticket is-selected" type="button" role="radio" aria-checked="true" data-amount="10">
+          <span class="amount-ticket-value">£10</span><span class="amount-ticket-label">Monthly</span>
+        </button>
+        <button class="amount-ticket" type="button" role="radio" aria-checked="false" data-amount="30">
+          <span class="amount-ticket-value">£30</span><span class="amount-ticket-label">Monthly</span>
+        </button>
+        <button class="amount-ticket" type="button" role="radio" aria-checked="false" data-amount="100">
+          <span class="amount-ticket-value">£100</span><span class="amount-ticket-label">Monthly</span>
+        </button>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 12px; padding: clamp(18px, 2vw, 26px) 0; border-top: 1px solid rgba(15,13,12,0.16); border-bottom: 1px solid rgba(15,13,12,0.16);">
+        <div class="counter-row">
+          <div id="daily-counter" class="counter-display" aria-hidden="true"></div>
+          <span class="counter-unit">a day</span>
+        </div>
+        <div id="monthly-line" style="font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(15,13,12,0.66);">£10 donated monthly</div>
+        <div id="donation-announcement" aria-live="polite" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);">£10 monthly is approximately 33 pence per day.</div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 12px; align-items: flex-start;">
+        <a id="monthly-checkout" href="https://buy.stripe.com/3cI00l9ma78JctzdW07IY03" data-cta="main" style="width: 100%; max-width: 560px; min-height: 58px; display: flex; align-items: center; justify-content: center; border: 0; background: #0F0D0C; color: #F0EAD9; border-radius: 9px; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer; transition: opacity 220ms; box-sizing: border-box;">Donate £10 monthly</a>
+        <p style="margin: 0; font-size: 13px; color: rgba(15,13,12,0.66);">Secure monthly donation. Change or cancel at any time.</p>
+      </div>
+      </div>
+    </div>
+    <div style="width: 100%;">
+      <img src="https://sacred-chronicles.vercel.app/photos/rug-tea.jpg" alt="The crew sharing tea on a rug beneath the palms between shoots" style="width: 100%; height: clamp(240px, 44vw, 620px); object-fit: cover; border-radius: 12px; display: block;">
+    </div>
+  </section>
+
+  <section data-screen-label="Community funding" class="rv" data-reveal="1" style="background: #0F0D0C; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: clamp(20px, 3vw, 64px); align-items: start; padding: clamp(56px, 6vw, 88px) clamp(20px, 4vw, 56px);">
+    <h2 style="margin: 0; max-width: 20ch; font-size: clamp(34px, 3.6vw, 52px); line-height: 1.04; font-weight: 700; letter-spacing: -0.028em; color: #F0EAD9; text-wrap: balance;">The community is the <span style="font-family: 'Instrument Serif', Georgia, serif; font-style: italic; font-weight: 400; color: #C89A3C;">sponsor.</span></h2>
+    <div style="display: flex; flex-direction: column; gap: 14px; max-width: 50ch; padding-top: 6px;">
+      <p style="margin: 0; font-size: clamp(16px, 1.1vw, 18px); line-height: 1.6; color: rgba(240,234,217,0.68);">Sacred Chronicles has no advertisements inside its films.</p>
+      <p style="margin: 0; font-size: clamp(16px, 1.1vw, 18px); line-height: 1.6; color: rgba(240,234,217,0.68);">The work is made possible by the people it is created for.</p>
+    </div>
+  </section>
+
+  <section id="carries" data-screen-label="The production" class="rv" data-reveal="1" style="background: #0F0D0C; display: flex; flex-direction: column; align-items: center; gap: clamp(28px, 4vw, 48px); padding: clamp(56px, 7vw, 96px) clamp(20px, 4vw, 56px); border-top: 1px solid rgba(240,234,217,0.16);">
+    <div style="display: flex; flex-direction: column; gap: 16px; width: 100%; max-width: 720px;">
+      <h2 style="margin: 0; font-size: clamp(34px, 3.6vw, 52px); line-height: 1.04; font-weight: 700; letter-spacing: -0.028em; color: #F0EAD9; text-wrap: balance;">Every film begins long before the camera turns on.</h2>
+      <p style="margin: 0; max-width: 50ch; font-size: 15px; line-height: 1.6; color: rgba(240,234,217,0.68);">Donations are pooled across the whole production rather than assigned to one line of it. This is the sequence they carry.</p>
+    </div>
+    <ol style="margin: 0; padding: 0; list-style: none; width: 100%; max-width: 720px; display: flex; flex-direction: column; border-left: 1px solid rgba(200,154,60,0.45);">
+      <li style="display: grid; grid-template-columns: auto 1fr; gap: 16px; padding: 18px 0 18px clamp(16px, 2.4vw, 28px); position: relative;">
+        <span style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(240,234,217,0.16); border-radius: 50%; color: #F0EAD9;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="5.5"></circle><path d="M14.2 14.2 20 20"></path><path d="M7.5 10h5M10 7.5v5"></path></svg></span>
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <div style="display: flex; align-items: baseline; gap: 10px;"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #C89A3C;">01</span><span style="font-size: 17px; font-weight: 600; color: #F0EAD9;">Research</span></div>
+          <p style="margin: 0; font-size: 14px; line-height: 1.55; color: rgba(240,234,217,0.68);">Months in books, archives and with scholars before a single shot is planned.</p>
+        </div>
+      </li>
+      <li style="display: grid; grid-template-columns: auto 1fr; gap: 16px; padding: 18px 0 18px clamp(16px, 2.4vw, 28px); position: relative;">
+        <span style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(240,234,217,0.16); border-radius: 50%; color: #F0EAD9;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 19l2.4-6.8L17.6 2.8l3.6 3.6L11.8 16.6 5 19z"></path><path d="M15.4 5l3.6 3.6"></path></svg></span>
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <div style="display: flex; align-items: baseline; gap: 10px;"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #C89A3C;">02</span><span style="font-size: 17px; font-weight: 600; color: #F0EAD9;">Writing</span></div>
+          <p style="margin: 0; font-size: 14px; line-height: 1.55; color: rgba(240,234,217,0.68);">Scripts drafted and checked until the story holds for a modern viewer.</p>
+        </div>
+      </li>
+      <li style="display: grid; grid-template-columns: auto 1fr; gap: 16px; padding: 18px 0 18px clamp(16px, 2.4vw, 28px); position: relative;">
+        <span style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(240,234,217,0.16); border-radius: 50%; color: #F0EAD9;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 19c0-4.5 5.5-4.5 8.5-7s4.5-4.5 4.5-8" stroke-dasharray="2.6 2.8"></path><circle cx="4.5" cy="19" r="1.5"></circle><circle cx="17.5" cy="4" r="1.5"></circle></svg></span>
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <div style="display: flex; align-items: baseline; gap: 10px;"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #C89A3C;">03</span><span style="font-size: 17px; font-weight: 600; color: #F0EAD9;">Travel</span></div>
+          <p style="margin: 0; font-size: 14px; line-height: 1.55; color: rgba(240,234,217,0.68);">Routes planned to reach the places where the events actually happened.</p>
+        </div>
+      </li>
+      <li style="display: grid; grid-template-columns: auto 1fr; gap: 16px; padding: 18px 0 18px clamp(16px, 2.4vw, 28px); position: relative;">
+        <span style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(240,234,217,0.16); border-radius: 50%; color: #F0EAD9;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="7" width="12.5" height="10" rx="2"></rect><path d="M15 11.5l6.5-3.2v7.4L15 12.5"></path></svg></span>
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <div style="display: flex; align-items: baseline; gap: 10px;"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #C89A3C;">04</span><span style="font-size: 17px; font-weight: 600; color: #F0EAD9;">Filming</span></div>
+          <p style="margin: 0; font-size: 14px; line-height: 1.55; color: rgba(240,234,217,0.68);">Cinema cameras on the ground, at the sites most people never see.</p>
+        </div>
+      </li>
+      <li style="display: grid; grid-template-columns: auto 1fr; gap: 16px; padding: 18px 0 18px clamp(16px, 2.4vw, 28px); position: relative;">
+        <span style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(240,234,217,0.16); border-radius: 50%; color: #F0EAD9;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7.5h18M3 12h11M3 16.5h14"></path><path d="M17.5 9.8v4.4"></path><circle cx="17.5" cy="12" r="0.2"></circle></svg></span>
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <div style="display: flex; align-items: baseline; gap: 10px;"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #C89A3C;">05</span><span style="font-size: 17px; font-weight: 600; color: #F0EAD9;">Editing</span></div>
+          <p style="margin: 0; font-size: 14px; line-height: 1.55; color: rgba(240,234,217,0.68);">Cutting months of footage into a film worth watching twice.</p>
+        </div>
+      </li>
+      <li style="display: grid; grid-template-columns: auto 1fr; gap: 16px; padding: 18px 0 18px clamp(16px, 2.4vw, 28px); position: relative;">
+        <span style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(240,234,217,0.16); border-radius: 50%; color: #F0EAD9;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 14.5 7 6l3.5 8.5M4.8 11.8h4.4"></path><path d="M13.5 7.5h7v6.5h-4.6l-2.4 2.4V7.5z"></path></svg></span>
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <div style="display: flex; align-items: baseline; gap: 10px;"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #C89A3C;">06</span><span style="font-size: 17px; font-weight: 600; color: #F0EAD9;">Translation</span></div>
+          <p style="margin: 0; font-size: 14px; line-height: 1.55; color: rgba(240,234,217,0.68);">Subtitles prepared so the same film can serve the whole Ummah.</p>
+        </div>
+      </li>
+      <li style="display: grid; grid-template-columns: auto 1fr; gap: 16px; padding: 18px 0 18px clamp(16px, 2.4vw, 28px); position: relative;">
+        <span style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(240,234,217,0.16); border-radius: 50%; color: #C89A3C;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="15.5" r="1.6"></circle><path d="M8.6 12a5 5 0 0 1 6.8 0"></path><path d="M6 9a9 9 0 0 1 12 0"></path></svg></span>
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <div style="display: flex; align-items: baseline; gap: 10px;"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #C89A3C;">07</span><span style="font-size: 17px; font-weight: 600; color: #F0EAD9;">Release</span></div>
+          <p style="margin: 0; font-size: 14px; line-height: 1.55; color: rgba(240,234,217,0.68);">Published free, for anyone to find years from now.</p>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <section id="vision" data-screen-label="Our vision" class="rv" data-reveal="1" style="background: #F0EAD9; color: #0F0D0C; padding: clamp(56px, 7vw, 104px) clamp(20px, 4vw, 56px);">
+    <div style="max-width: 920px; margin: 0 auto; display: flex; flex-direction: column; gap: clamp(24px, 3vw, 36px);">
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.22em; text-transform: uppercase; color: #C89A3C;">Our vision</span>
+        <h2 style="margin: 0; max-width: 22ch; font-size: clamp(34px, 3.8vw, 56px); line-height: 1.03; font-weight: 700; letter-spacing: -0.028em; color: #0F0D0C; text-wrap: balance;">A library of Muslim history worth growing up with.</h2>
+        <p style="margin: 0; max-width: 56ch; font-size: clamp(16px, 1.1vw, 18px); line-height: 1.6; color: rgba(15,13,12,0.72);">Our history is filled with extraordinary people, civilisations and places. Sacred Chronicles turns these stories into cinematic experiences people can see, feel and pass on.</p>
+      </div>
+      <img src="https://sacred-chronicles.vercel.app/photos/lake-view.jpg" alt="A wide location view across the water at the edge of a historic settlement" style="width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 12px; border: 1px solid rgba(15,13,12,0.16); display: block;">
+    </div>
+  </section>
+
+  <section id="story" data-screen-label="Our story" class="rv" data-reveal="1" style="background: #0F0D0C; padding: clamp(56px, 7vw, 104px) clamp(20px, 4vw, 56px);">
+    <div style="max-width: 920px; margin: 0 auto; display: flex; flex-direction: column; gap: clamp(24px, 3vw, 36px);">
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.22em; text-transform: uppercase; color: #C89A3C;">Our story</span>
+        <h2 style="margin: 0; max-width: 22ch; font-size: clamp(34px, 3.8vw, 56px); line-height: 1.03; font-weight: 700; letter-spacing: -0.028em; color: #F0EAD9; text-wrap: balance;">We began by creating what we wished existed.</h2>
+        <p style="margin: 0; max-width: 56ch; font-size: clamp(16px, 1.1vw, 18px); line-height: 1.6; color: rgba(240,234,217,0.68);">We grew up surrounded by extraordinary history, but rarely experienced it in a form that could hold our attention. Sacred Chronicles began with a simple belief: the Ummah deserves films made with the same care as the stories they carry.</p>
+      </div>
+      <img src="https://sacred-chronicles.vercel.app/photos/palm-portrait.jpg" alt="Hamza and Rafik filming among the palm groves" style="width: 100%; aspect-ratio: 3 / 2; object-fit: cover; border-radius: 12px; border: 1px solid rgba(240,234,217,0.16); display: block;">
+    </div>
+  </section>
+
+  <section data-screen-label="The work" class="rv" data-reveal="1" style="background: #F0EAD9; color: #0F0D0C; padding: clamp(56px, 7vw, 104px) clamp(20px, 4vw, 56px);">
+    <div style="max-width: 920px; margin: 0 auto; display: flex; flex-direction: column; gap: clamp(24px, 3vw, 36px);">
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.22em; text-transform: uppercase; color: #C89A3C;">The work</span>
+        <h2 style="margin: 0; max-width: 22ch; font-size: clamp(34px, 3.8vw, 56px); line-height: 1.03; font-weight: 700; letter-spacing: -0.028em; color: #0F0D0C; text-wrap: balance;">Every frame, filmed where it happened.</h2>
+        <p style="margin: 0; max-width: 56ch; font-size: clamp(16px, 1.1vw, 18px); line-height: 1.6; color: rgba(15,13,12,0.72);">We travel to the places where history unfolded, study the stories carefully and turn them into films that feel present, human and worth remembering.</p>
+      </div>
+      <img src="https://sacred-chronicles.vercel.app/photos/mosque-map.jpg" alt="Reading a map on location in front of a historic mosque" style="width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 12px; border: 1px solid rgba(15,13,12,0.16); display: block;">
+    </div>
+  </section>
+
+  <section data-screen-label="Future archive" class="rv" data-reveal="1" style="background: #0F0D0C; padding: clamp(56px, 7vw, 104px) clamp(20px, 4vw, 56px);">
+    <div style="max-width: 920px; margin: 0 auto; display: flex; flex-direction: column; gap: clamp(24px, 3vw, 36px);">
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.22em; text-transform: uppercase; color: #C89A3C;">The future archive</span>
+        <h2 style="margin: 0; max-width: 22ch; font-size: clamp(34px, 3.8vw, 56px); line-height: 1.03; font-weight: 700; letter-spacing: -0.028em; color: #F0EAD9; text-wrap: balance;">We are building something the next generation can inherit.</h2>
+        <p style="margin: 0; max-width: 56ch; font-size: clamp(16px, 1.1vw, 18px); line-height: 1.6; color: rgba(240,234,217,0.68);">An archive a young Muslim can discover years from now, and a family can watch together.</p>
+      </div>
+      <ol style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; border-top: 1px solid rgba(240,234,217,0.16);">
+        <li style="display: grid; grid-template-columns: auto 1fr auto; gap: 16px; align-items: baseline; padding: 18px 0; border-bottom: 1px solid rgba(240,234,217,0.16);">
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #C89A3C;">01</span>
+          <span style="font-size: clamp(17px, 1.4vw, 21px); font-weight: 600; color: #F0EAD9;">Cities that carried knowledge</span>
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(240,234,217,0.68);">Civilisations</span>
+        </li>
+        <li style="display: grid; grid-template-columns: auto 1fr auto; gap: 16px; align-items: baseline; padding: 18px 0; border-bottom: 1px solid rgba(240,234,217,0.16);">
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #C89A3C;">02</span>
+          <span style="font-size: clamp(17px, 1.4vw, 21px); font-weight: 600; color: #F0EAD9;">The people behind the names</span>
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(240,234,217,0.68);">Lives</span>
+        </li>
+        <li style="display: grid; grid-template-columns: auto 1fr auto; gap: 16px; align-items: baseline; padding: 18px 0; border-bottom: 1px solid rgba(240,234,217,0.16);">
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #C89A3C;">03</span>
+          <span style="font-size: clamp(17px, 1.4vw, 21px); font-weight: 600; color: #F0EAD9;">Where the story was set</span>
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(240,234,217,0.68);">Sacred places</span>
+        </li>
+        <li style="display: grid; grid-template-columns: auto 1fr auto; gap: 16px; align-items: baseline; padding: 18px 0; border-bottom: 1px solid rgba(240,234,217,0.16);">
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #C89A3C;">04</span>
+          <span style="font-size: clamp(17px, 1.4vw, 21px); font-weight: 600; color: #F0EAD9;">Routes walked again</span>
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(240,234,217,0.68);">Journeys</span>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="compare" data-screen-label="Comparison" class="rv" data-reveal="1" style="background: #F0EAD9; color: #0F0D0C; display: flex; flex-direction: column; align-items: center; gap: clamp(24px, 3vw, 44px); padding: clamp(56px, 7vw, 104px) clamp(20px, 4vw, 56px);">
+    <div style="display: flex; flex-direction: column; gap: 16px; width: 100%; max-width: 820px;">
+      <h2 style="margin: 0; font-size: clamp(34px, 3.8vw, 56px); line-height: 1.04; font-weight: 700; letter-spacing: -0.028em; color: #0F0D0C; text-wrap: balance;">Some monthly payments help us pass time. This one helps us <span style="font-family: 'Instrument Serif', Georgia, serif; font-style: italic; font-weight: 400; color: #C89A3C;">pass something on.</span></h2>
+      <p style="margin: 0; max-width: 52ch; font-size: 15px; line-height: 1.6; color: rgba(15,13,12,0.66);">Most monthly entertainment payments end with consumption. Your donation helps create something that can keep benefiting people after the screen turns off.</p>
+    </div>
+    <div style="width: 100%; max-width: 820px;">
+      <div style="display: grid; grid-template-columns: 1.1fr 0.6fr 1.2fr; gap: clamp(10px, 2vw, 28px); padding-bottom: 10px; border-bottom: 1px solid rgba(15,13,12,0.16); font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(15,13,12,0.66);">
+        <span>Monthly payment</span><span>Cost</span><span>What remains</span>
+      </div>
+      <div style="display: grid; grid-template-columns: 1.1fr 0.6fr 1.2fr; gap: clamp(10px, 2vw, 28px); padding: 16px 0; border-bottom: 1px solid rgba(15,13,12,0.16); align-items: baseline;">
+        <span style="font-size: 16px;">Netflix</span><span style="font-size: 16px; font-variant-numeric: tabular-nums;">£12.99</span><span style="font-size: 14px; color: rgba(15,13,12,0.66);">Entertainment access</span>
+      </div>
+      <div style="display: grid; grid-template-columns: 1.1fr 0.6fr 1.2fr; gap: clamp(10px, 2vw, 28px); padding: 16px 0; border-bottom: 1px solid rgba(15,13,12,0.16); align-items: baseline;">
+        <span style="font-size: 16px;">Spotify</span><span style="font-size: 16px; font-variant-numeric: tabular-nums;">£11.99</span><span style="font-size: 14px; color: rgba(15,13,12,0.66);">Listening access</span>
+      </div>
+      <div style="display: grid; grid-template-columns: 1.1fr 0.6fr 1.2fr; gap: clamp(10px, 2vw, 28px); padding: 16px 0; align-items: baseline;">
+        <span style="font-size: 16px;">Prime Video</span><span style="font-size: 16px; font-variant-numeric: tabular-nums;">£8.99</span><span style="font-size: 14px; color: rgba(15,13,12,0.66);">Entertainment access</span>
+      </div>
+      <div style="display: grid; grid-template-columns: 1.1fr 0.6fr 1.2fr; gap: clamp(10px, 2vw, 28px); padding: 20px 0; border-top: 2px solid #C89A3C; border-bottom: 1px solid rgba(15,13,12,0.16); background: rgba(200,154,60,0.07); align-items: baseline;">
+        <span style="font-size: 17px; font-weight: 700; letter-spacing: -0.015em;">Sacred Chronicles</span><span style="font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums;"><span id="comparison-amount">£10</span></span><span style="font-size: 14px; font-weight: 600;">A growing archive for the Ummah</span>
+      </div>
+      <p style="margin: 12px 0 0; font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(15,13,12,0.66);">UK prices checked August 2026. Placeholder values, verify before publishing.</p>
+    </div>
+  </section>
+
+  <section data-screen-label="Final CTA" class="rv" data-reveal="1" style="position: relative; overflow: hidden; background: #0F0D0C; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: clamp(28px, 4vw, 64px); align-items: center; padding: clamp(64px, 8vw, 120px) clamp(20px, 4vw, 56px);">
+    <img src="uploads/Map-of-Ottoman.png" alt="" aria-hidden="true" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.06; pointer-events: none;">
+    <div style="position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 20px; max-width: 620px;">
+      <h2 style="margin: 0; max-width: 22ch; font-size: clamp(36px, 4.2vw, 62px); line-height: 1.03; font-weight: 700; letter-spacing: -0.03em; color: #F0EAD9; text-wrap: balance;">History does not preserve itself.</h2>
+      <p style="margin: 0; max-width: 46ch; font-size: clamp(16px, 1.15vw, 18px); line-height: 1.6; color: rgba(240,234,217,0.68);">Help us create an archive the next generation of Muslims will be grateful to inherit.</p>
+      <p style="margin: 0; max-width: 46ch; font-size: 15px; line-height: 1.6; color: rgba(240,234,217,0.68);">No advertisements inside the films. Just a community helping preserve stories that deserve to be seen.</p>
+    </div>
+    <div style="position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 14px;">
+      <a href="#donate" data-cta="final" style="display: flex; align-items: center; justify-content: center; min-width: 220px; min-height: 58px; padding: 0 40px; background: #F0EAD9; color: #0F0D0C; border-radius: 9px; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; letter-spacing: 0.2em; text-transform: uppercase;" >Donate</a>
+      <p style="margin: 0; font-size: 13px; color: rgba(240,234,217,0.68);">Secure monthly donation. Change or cancel at any time.</p>
+      <div style="display: flex; align-items: center; gap: 10px; margin-top: 6px; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: #C89A3C;">
+        <span style="width: 22px; height: 1px; background: #C89A3C; display: block;"></span>The living archive
+      </div>
+    </div>
+  </section>
+
+  <footer style="background: #0F0D0C; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: clamp(20px, 3vw, 56px); padding: clamp(40px, 5vw, 72px) clamp(20px, 4vw, 56px) 88px; border-top: 1px solid rgba(240,234,217,0.16);">
+    <div style="display: flex; flex-direction: column; gap: 12px; max-width: 36ch;">
+      <a href="#top" style="display: flex; align-items: center;">
+        <img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iTGF5ZXJfMiIgZGF0YS1uYW1lPSJMYXllciAyIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMjgzLjMzIDYzMC45MiI+CiAgPGRlZnM+CiAgICA8c3R5bGU+CiAgICAgIC5jbHMtMSwgLmNscy0yIHsKICAgICAgICBpc29sYXRpb246IGlzb2xhdGU7CiAgICAgIH0KCiAgICAgIC5jbHMtMiB7CiAgICAgICAgZm9udC1mYW1pbHk6IEZyYXVuY2VzMTQ0cHQtQm9sZCwgJ0ZyYXVuY2VzIDE0NHB0JzsKICAgICAgICBmb250LXNpemU6IDQxMS43MXB4OwogICAgICAgIGZvbnQtd2VpZ2h0OiA3MDA7CiAgICAgIH0KCiAgICAgIC5jbHMtMiwgLmNscy0zIHsKICAgICAgICBmaWxsOiAjZWVlOwogICAgICB9CiAgICA8L3N0eWxlPgogIDwvZGVmcz4KICA8ZyBpZD0iTGF5ZXJfMi0yIiBkYXRhLW5hbWU9IkxheWVyIDIiPgogICAgPGcgaWQ9IkxheWVyXzEtMiIgZGF0YS1uYW1lPSJMYXllciAxLTIiPgogICAgICA8ZyBjbGFzcz0iY2xzLTEiPgogICAgICAgIDx0ZXh0IGNsYXNzPSJjbHMtMiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNDU5LjE4IDM0OS45NSkiPjx0c3BhbiB4PSIwIiB5PSIwIj5TYWNyZWQ8L3RzcGFuPjwvdGV4dD4KICAgICAgPC9nPgogICAgICA8Zz4KICAgICAgICA8cGF0aCBjbGFzcz0iY2xzLTMiIGQ9Ik0zMDYuMjMsNTA4LjY3Yy0xLjE1LDE3LjA2LTUuNDUsMzMtMTIuOTEsNDcuODQtNy40NiwxNC44NC0xNy40NiwyNy44NC0zMC4wMSwzOC45OS0xMi41NCwxMS4xNS0yNy4xOCwxOS44NC00My45MSwyNi4wNy0xNi43Myw2LjIzLTM0LjkzLDkuMzUtNTQuNiw5LjM1LTM0LjExLDAtNjMuNDYtNy4yMi04OC4wNi0yMS42NS0yNC42LTE0LjQzLTQzLjU0LTM0LjY0LTU2LjgyLTYwLjYzQzYuNjQsNTIyLjY1LDAsNDkyLjE5LDAsNDU3LjI2YzAtMjcuMjIsNC4xNC01Mi4xLDEyLjQyLTc0LjY1LDguMjgtMjIuNTUsMjAuMDUtNDIuMDIsMzUuMy01OC40MiwxNS4yNS0xNi40LDMzLjQ5LTI5LjA2LDU0LjczLTM4LDIxLjIzLTguOTQsNDQuOC0xMy40LDcwLjcyLTEzLjQsMTQuNDMsMCwyNi44MSwxLjQ4LDM3LjE0LDQuNDNzMTguNTMsNS45NSwyNC42LDguOThjNi4wNiwzLjA0LDkuOTIsNC41NSwxMS41Niw0LjU1LDIuNDYsMCw2LjMxLTEuNDgsMTEuNTYtNC40Myw1LjI1LTIuOTUsMTAuMzMtNS45LDE1LjI1LTguODVzOC4wMy00LjQzLDkuMzUtNC40M2MuODIsMCwxLjU2LjM3LDIuMjEsMS4xMXMxLjE1LDIuMDEsMS40OCwzLjgxbDIxLjQsMTA3Ljk4Yy4zMywxLjY0LjM3LDIuOTEuMTIsMy44MXMtMS4wMywxLjUyLTIuMzQsMS44NWMtMS4xNS4xNy0yLjA5LS4wOC0yLjgzLS43NC0uNzQtLjY1LTEuNTItMS44OC0yLjM0LTMuNjktOS44NC0yNi4yMy0yMC41NC00Ni45NC0zMi4xLTYyLjExcy0yMy4zNy0yNS45OS0zNS40Mi0zMi40Ny0yMy43NC05LjcyLTM1LjA1LTkuNzItMjIuMjIsMy4wNC0zMi4yMiw5LjFjLTEwLDYuMDctMTguOSwxNS4wNS0yNi42OSwyNi45My03Ljc5LDExLjg5LTEzLjg2LDI2LjYxLTE4LjIsNDQuMTUtNC4zNSwxNy41NS02LjUyLDM3Ljg4LTYuNTIsNjEsMCwzOC4wNSw0LjM0LDY5LjI4LDEzLjA0LDkzLjcxLDguNjksMjQuNDQsMjAuNyw0Mi40NywzNi4wMyw1NC4xMSwxNS4zMywxMS42NSwzMi45MiwxNy40Niw1Mi43NiwxNy40NiwyMC44MiwwLDM5LjE1LTYuNjgsNTQuOTctMjAuMDUsMTUuODItMTMuMzYsMjYuMTEtMzMuODIsMzAuODctNjEuMzcuMzMtMS4xNS42NS0yLjAxLjk4LTIuNTguMzMtLjU3LjgyLS44NiwxLjQ4LS44Ni44MiwwLDEuMzkuNDEsMS43MiwxLjIzcy40MSwxLjgxLjI1LDIuOTV2LjAyWiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTQyOC45NywyNTUuNTd2MzUyLjIzYzAsMi42Mi40NSw0LjcyLDEuMzUsNi4yNy45LDEuNTYsMi40MiwyLjU4LDQuNTUsMy4wN2w5LjM1LDIuMjFjMS45Ny40OSwyLjk1LDEuMjMsMi45NSwyLjIxLDAsMS4zMS0uODIsMS45Ny0yLjQ2LDEuOTdoLTEyMC41MmMtLjY2LDAtMS4yMy0uMTYtMS43Mi0uNDlzLS43NC0uODItLjc0LTEuNDhjMC0uNDkuMi0uOTQuNjItMS4zNXMxLjE5LS43LDIuMzQtLjg2bDkuMzUtMi4yMWMyLjI5LS40OSwzLjg1LTEuNTEsNC42Ny0zLjA3czEuMjMtMy42NSwxLjIzLTYuMjd2LTMyMC4yNWMwLTEuMzEtLjMzLTIuMjktLjk4LTIuOTUtLjY2LS42NS0xLjcyLS45OC0zLjItLjk4aC05LjU5Yy0xLjE1LDAtMS45My0uMi0yLjM0LS42MS0uNDEtLjQxLS42MS0uOTQtLjYxLTEuNnMuMjUtMS4xNS43NC0xLjQ4Yy40OS0uMzMsMS4wNi0uNTcsMS43Mi0uNzRsOTMuMjItMjUuODNjMS45Ny0uNDksMy4zMi0uODIsNC4wNi0uOTguNzQtLjE2LDEuNi0uMjUsMi41OC0uMjUsMS4xNSwwLDIuMDEuMzMsMi41OC45OC41Ny42Ni44NiwxLjQ4Ljg2LDIuNDZoLS4wMVpNNDIxLjU5LDQ1Ni41MmwtMy40NC0zLjY5LDkuODQtOC42MWMxOC4zNi0xNi4wNywzNS4zLTI3Ljc1LDUwLjc5LTM1LjA1LDE1LjUtNy4yOSwyOS4zMS0xMC45NSw0MS40NC0xMC45NSwxNS4yNSwwLDI3LjYzLDQuNTksMzcuMTQsMTMuNzcsOS41MSw5LjE5LDE0LjI3LDI0LjExLDE0LjI3LDQ0Ljc3djE1MS4wMmMwLDIuNjIuNDUsNC43MiwxLjM1LDYuMjcuOSwxLjU2LDIuNDIsMi41OCw0LjU1LDMuMDdsOS4zNSwyLjIxYzEuMTUuMTcsMS45Mi40NSwyLjM0Ljg2LjQxLjQxLjYyLjg2LjYyLDEuMzUsMCwuNjYtLjIxLDEuMTUtLjYyLDEuNDgtLjQxLjMzLTEuMDMuNDktMS44NC40OWgtMTIwLjUzYy0xLjY0LDAtMi40Ni0uNjUtMi40Ni0xLjk3LDAtLjk4Ljk4LTEuNzIsMi45NS0yLjIxbDkuMzUtMi4yMWMyLjI5LS40OSwzLjg1LTEuNTEsNC42Ny0zLjA3czEuMjMtMy42NSwxLjIzLTYuMjd2LTE0MS42OGMwLTEwLjE3LTEuOTMtMTcuNTQtNS43OC0yMi4xNC0zLjg1LTQuNTktOS42NC02Ljg5LTE3LjM0LTYuODktNC45MiwwLTkuODQuOTgtMTQuNzYsMi45NXMtOS41MSw0Ljc2LTEzLjc3LDguMzZsLTkuMzUsOC4xMnYuMDJaIi8+CiAgICAgICAgPHBhdGggY2xhc3M9ImNscy0zIiBkPSJNNzA3LjksNDAzLjY0djIwMS43YzAsMi4xMy41Nyw0LjEsMS43Miw1LjksMS4xNSwxLjgxLDIuNzEsMi45NSw0LjY3LDMuNDRsMjQuMTEsNC45MmMuOTguMTcsMS42NC40MSwxLjk3Ljc0LjMzLjMzLjQ5Ljc0LjQ5LDEuMjMsMCwuNjYtLjI1LDEuMTUtLjc0LDEuNDgtLjQ5LjMzLTEuMjMuNDktMi4yMS40OWgtMTM0LjNjLS45OCwwLTEuNzItLjItMi4yMS0uNjEtLjQ5LS40MS0uNzQtLjg2LS43NC0xLjM1cy4zMy0uOTguOTgtMS40OGMuNjUtLjQ5LDEuNDgtLjgyLDIuNDYtLjk4bDguODYtMS45N2MyLjI5LS40OSwzLjg1LTEuNDMsNC42Ny0yLjgzLjgyLTEuMzksMS4yMy0zLjA3LDEuMjMtNS4wNHYtMTc4LjA4YzAtMS40OC0uMjktMi42Ni0uODYtMy41Ny0uNTgtLjktMS42LTEuMzUtMy4wNy0xLjM1aC0xMC44MmMtLjY2LDAtMS4yMy0uMi0xLjcyLS42Mi0uNDktLjQxLS43NC0uODYtLjc0LTEuMzVzLjI1LS45OC43NC0xLjQ4Yy40OS0uNDksMS4yMy0uODIsMi4yMS0uOThsOTMuNDctMjEuMTVjMS40OC0uMzMsMi42Ni0uNTcsMy41Ny0uNzQuOS0uMTYsMS44NS0uMjUsMi44My0uMjUsMS4zMSwwLDIuMjEuNDEsMi43MSwxLjIzLjQ5LjgyLjc0LDEuNzIuNzQsMi43MWgtLjAyWk03MDMuOTYsNDkwLjcxYzAtMjAuMzMsMy4yNC0zNy4zNSw5LjcyLTUxLjA0czE0LjgtMjQuMDIsMjQuOTctMzAuOTksMjAuNzQtMTAuNDUsMzEuNzMtMTAuNDVjMTMuNDQsMCwyMy42OSw0LjQzLDMwLjc1LDEzLjI4LDcuMDUsOC44NiwxMC41OCwyMi4zLDEwLjU4LDQwLjM0cy00LjE4LDMwLjgzLTEyLjU0LDM5LjM2LTE4Ljg2LDEyLjc5LTMxLjQ4LDEyLjc5Yy0xMS42NSwwLTIwLjA5LTMuMTYtMjUuMzQtOS40N3MtOC4yLTE1LjQ1LTguODUtMjcuNDNsLS40OS05LjM1Yy0uMTctMy42MS0uOS02LjU2LTIuMjEtOC44Ni0xLjMxLTIuMjktMy42OS0zLjQ0LTcuMTMtMy40NC0zLjEyLDAtNS44NiwxLjY0LTguMjQsNC45MnMtNC4yMiw4LjQ1LTUuNTMsMTUuNWMtMS4zMSw3LjA1LTEuOTcsMTYuMTUtMS45NywyNy4zbC0zLjk0LTIuNDZoLS4wM1oiLz4KICAgICAgICA8cGF0aCBjbGFzcz0iY2xzLTMiIGQ9Ik05NDUuMDEsMzk4LjIzYzIzLjQ1LDAsNDQuMTUsNC45Miw2Mi4xMSwxNC43NnMzMi4wMSwyMy40OSw0Mi4xOCw0MC45NWMxMC4xNywxNy40NiwxNS4yNSwzNy41OSwxNS4yNSw2MC4zOHMtNS4yOSw0Mi4wMi0xNS44Nyw1OS4xNmMtMTAuNTgsMTcuMTQtMjUuMTMsMzAuNTktNDMuNjYsNDAuMzQtMTguNTMsOS43NS0zOS44NSwxNC42NC02My45NSwxNC42NHMtNDQuMTUtNC44NC02Mi4xMS0xNC41MWMtMTcuOTYtOS42Ny0zMi4wMi0yMy4wOC00Mi4xOC00MC4yMi0xMC4xNy0xNy4xMy0xNS4yNS0zNi45My0xNS4yNS01OS40czUuMzctNDIuMTgsMTYuMTEtNTkuNjVjMTAuNzQtMTcuNDYsMjUuNDItMzEuMjQsNDQuMDMtNDEuMzIsMTguNjEtMTAuMDgsMzkuNzItMTUuMTMsNjMuMzQtMTUuMTNoMFpNOTU5LjAzLDYyMy41NGM1LjktLjgyLDEwLjI5LTUuNDEsMTMuMTYtMTMuNzcsMi44Ny04LjM2LDQuMjItMjAuODIsNC4wNi0zNy4zOS0uMTctMTYuNTYtMi4wNS0zNy4zOS01LjY2LTYyLjQ4cy03LjU5LTQ1LjYzLTExLjkzLTYxLjYxYy00LjM1LTE1Ljk5LTkuMDYtMjcuNjMtMTQuMTQtMzQuOTMtNS4wOC03LjI5LTEwLjY2LTEwLjQ1LTE2LjczLTkuNDctNS43NC45OC0xMC4wNSw1LjY2LTEyLjkxLDE0LjAyLTIuODcsOC4zNi00LjE0LDIwLjc1LTMuODEsMzcuMTQuMzMsMTYuNCwyLjIxLDM3LjE0LDUuNjYsNjIuMjMsMy42MSwyNS4wOSw3LjU0LDQ1LjYzLDExLjgxLDYxLjYyLDQuMjYsMTUuOTksOC45NCwyNy42MywxNC4wMiwzNC45M3MxMC41OCwxMC41MywxNi40OCw5LjcyaC0uMDFaIi8+CiAgICAgICAgPHBhdGggY2xhc3M9ImNscy0zIiBkPSJNMTE4NS41Nyw0MDAuNjl2MjA3LjExYzAsMi42Mi40NSw0LjcyLDEuMzUsNi4yNy45LDEuNTYsMi40MiwyLjU4LDQuNTUsMy4wN2w5LjM1LDIuMjFjMS45Ny40OSwyLjk1LDEuMjMsMi45NSwyLjIxLDAsMS4zMS0uODIsMS45Ny0yLjQ2LDEuOTdoLTEyMC41MmMtLjY2LDAtMS4yMy0uMTYtMS43Mi0uNDlzLS43NC0uODItLjc0LTEuNDhjMC0uNDkuMi0uOTQuNjItMS4zNXMxLjE5LS43LDIuMzQtLjg2bDkuMzUtMi4yMWMyLjI5LS40OSwzLjg1LTEuNTEsNC42Ny0zLjA3LjgyLTEuNTYsMS4yMy0zLjY1LDEuMjMtNi4yN3YtMTc1LjEzYzAtMS4zMS0uMzMtMi4yOS0uOTgtMi45NS0uNjYtLjY1LTEuNzItLjk4LTMuMi0uOThoLTkuNTljLTEuMTUsMC0xLjkzLS4yLTIuMzQtLjYxLS40MS0uNDEtLjYxLS45NC0uNjEtMS42cy4yNS0xLjE1Ljc0LTEuNDhjLjQ5LS4zMywxLjA2LS41NywxLjcyLS43NGw5My4yMi0yNS44M2MxLjk3LS40OSwzLjMyLS44Miw0LjA2LS45OC43NC0uMTYsMS42LS4yNSwyLjU4LS4yNSwxLjE1LDAsMi4wMS4zMywyLjU4Ljk4LjU3LjY2Ljg2LDEuNDguODYsMi40NmgtLjAxWk0xMTc4LjE5LDQ1Ni41MmwtMy40NC0zLjY5LDkuODQtOC42MWMxOC4zNi0xNi4wNywzNS4zLTI3Ljc1LDUwLjc5LTM1LjA1LDE1LjUtNy4yOSwyOS4zMS0xMC45NSw0MS40NC0xMC45NSwxNS4yNSwwLDI3LjYzLDQuNTksMzcuMTQsMTMuNzcsOS41MSw5LjE5LDE0LjI3LDI0LjExLDE0LjI3LDQ0Ljc3djE1MS4wMmMwLDIuNjIuNDUsNC43MiwxLjM1LDYuMjcuOSwxLjU2LDIuNDIsMi41OCw0LjU1LDMuMDdsOS4zNSwyLjIxYzEuMTUuMTcsMS45Mi40NSwyLjM0Ljg2LjQxLjQxLjYyLjg2LjYyLDEuMzUsMCwuNjYtLjIxLDEuMTUtLjYyLDEuNDgtLjQxLjMzLTEuMDMuNDktMS44NC40OWgtMTIwLjUzYy0xLjY0LDAtMi40Ni0uNjUtMi40Ni0xLjk3LDAtLjk4Ljk4LTEuNzIsMi45NS0yLjIxbDkuMzUtMi4yMWMyLjI5LS40OSwzLjg1LTEuNTEsNC42Ny0zLjA3LjgyLTEuNTYsMS4yMy0zLjY1LDEuMjMtNi4yN3YtMTQxLjY4YzAtMTAuMTctMS45My0xNy41NC01Ljc4LTIyLjE0LTMuODUtNC41OS05LjY0LTYuODktMTcuMzQtNi44OS00LjkyLDAtOS44NC45OC0xNC43NiwyLjk1cy05LjUxLDQuNzYtMTMuNzcsOC4zNmwtOS4zNSw4LjEydi4wMloiLz4KICAgICAgICA8cGF0aCBjbGFzcz0iY2xzLTMiIGQ9Ik0xNDY0LjAxLDQwMC42OXYyMDcuMTFjMCwyLjYyLjQ1LDQuNzIsMS4zNSw2LjI3LjksMS41NiwyLjQyLDIuNTgsNC41NSwzLjA3bDkuMzUsMi4yMWMxLjE1LjE3LDEuOTMuNDUsMi4zNC44Ni40MS40MS42MS44Ni42MSwxLjM1LDAsLjY2LS4yMSwxLjE1LS42MSwxLjQ4LS40MS4zMy0xLjAzLjQ5LTEuODUuNDloLTEyMC41MmMtLjY2LDAtMS4yMy0uMTYtMS43Mi0uNDlzLS43NC0uODItLjc0LTEuNDhjMC0uNDkuMi0uOTQuNjItMS4zNXMxLjE5LS43LDIuMzQtLjg2bDkuMzUtMi4yMWMyLjI5LS40OSwzLjg1LTEuNTEsNC42Ny0zLjA3LjgyLTEuNTYsMS4yMy0zLjY1LDEuMjMtNi4yN3YtMTc1LjEzYzAtMS4zMS0uMzMtMi4yOS0uOTgtMi45NS0uNjYtLjY1LTEuNzItLjk4LTMuMi0uOThoLTkuNTljLTEuMTUsMC0xLjkzLS4yLTIuMzQtLjYxLS40MS0uNDEtLjYxLS45NC0uNjEtMS42cy4yNS0xLjE1Ljc0LTEuNDhjLjQ5LS4zMywxLjA2LS41NywxLjcyLS43NGw5My4yMi0yNS44M2MxLjk3LS40OSwzLjMyLS44Miw0LjA2LS45OC43NC0uMTYsMS42LS4yNSwyLjU4LS4yNSwxLjE1LDAsMi4wMS4zMywyLjU4Ljk4LjU3LjY2Ljg2LDEuNDguODYsMi40NmgtLjAxWiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTE3MDIuODUsNDYzLjE2YzAsMTIuMy0zLjQ5LDIyLjEtMTAuNDUsMjkuMzktNi45Nyw3LjMtMTYuNzcsMTAuOTUtMjkuMzksMTAuOTVzLTIyLjc5LTMuODEtMzAuMDEtMTEuNDQtMTAuODItMTguNzMtMTAuODItMzMuMzN2LTI0LjZjMC05Ljg0LTEuNjQtMTcuMy00LjkyLTIyLjM4LTMuMjgtNS4wOC03LjYzLTcuNjMtMTMuMDQtNy42My01Ljc0LDAtMTAuNzQsMi44My0xNSw4LjQ5LTQuMjcsNS42Ni03LjUsMTMuOTQtOS43MiwyNC44NC0yLjIxLDEwLjkxLTMuMzIsMjQuMjMtMy4zMiwzOS45NywwLDIwLjk5LDIuNzQsMzguNyw4LjI0LDUzLjEzLDUuNDksMTQuNDMsMTMuMTIsMjUuMzMsMjIuODgsMzIuNzEsOS43NSw3LjM4LDIxLjAzLDExLjA3LDMzLjgyLDExLjA3LDE0LjU5LDAsMjYuODEtMi41OCwzNi42NS03Ljc1czE2LjA3LTEzLjU3LDE4LjY5LTI1LjIxYy4xNi0uODIuNDUtMS4zOS44Ni0xLjcyLjQxLS4zMy44Ni0uNDEsMS4zNS0uMjUuNDkuMTcuODYuNDksMS4xMS45OHMuMjgsMS4xNS4xMiwxLjk3Yy0yLjc5LDE4LjA0LTguNzcsMzMuNDUtMTcuOTYsNDYuMjRzLTIxLjAzLDIyLjYzLTM1LjU0LDI5LjUyLTMxLjI4LDEwLjMzLTUwLjMsMTAuMzNjLTIwLjE3LDAtMzguMTMtNC4wNi01My44Ny0xMi4xOHMtMjguMTMtMjAuMjUtMzcuMTQtMzYuNGMtOS4wMi0xNi4xNS0xMy41My0zNi4yLTEzLjUzLTYwLjE0czUuMDgtNDQuNzcsMTUuMjUtNjIuOTcsMjQuMTQtMzIuNTEsNDEuOTQtNDIuOTJjMTcuNzktMTAuNDEsMzguMjUtMTUuNjIsNjEuMzctMTUuNjIsMjAuNjYsMCwzNy44NCwyLjgzLDUxLjUzLDguNDksMTMuNjksNS42NiwyMy45OCwxMy4zNywzMC44NywyMy4xMiw2Ljg5LDkuNzYsMTAuMzMsMjAuODcsMTAuMzMsMzMuMzNoMFoiLz4KICAgICAgICA8cGF0aCBjbGFzcz0iY2xzLTMiIGQ9Ik0xODI1LjM0LDI1NS41N3YzNTIuMjNjMCwyLjYyLjQ1LDQuNzIsMS4zNSw2LjI3LjksMS41NiwyLjQyLDIuNTgsNC41NSwzLjA3bDkuMzUsMi4yMWMxLjE1LjE3LDEuOTMuNDUsMi4zNC44Ni40MS40MS42Mi44Ni42MiwxLjM1LDAsLjY2LS4yMSwxLjE1LS42MiwxLjQ4LS40MS4zMy0xLjAzLjQ5LTEuODQuNDloLTEyMC41MmMtLjY2LDAtMS4yMy0uMTYtMS43Mi0uNDlzLS43NC0uODItLjc0LTEuNDhjMC0uNDkuMi0uOTQuNjEtMS4zNXMxLjE5LS43LDIuMzQtLjg2bDkuMzUtMi4yMWMyLjI5LS40OSwzLjg1LTEuNTEsNC42Ny0zLjA3LjgyLTEuNTYsMS4yMy0zLjY1LDEuMjMtNi4yN3YtMzIwLjI1YzAtMS4zMS0uMzMtMi4yOS0uOTgtMi45NS0uNjYtLjY1LTEuNzItLjk4LTMuMi0uOThoLTkuNTljLTEuMTUsMC0xLjkzLS4yLTIuMzQtLjYxLS40MS0uNDEtLjYyLS45NC0uNjItMS42cy4yNS0xLjE1Ljc0LTEuNDhjLjQ5LS4zMywxLjA2LS41NywxLjcyLS43NGw5My4yMi0yNS44M2MxLjk3LS40OSwzLjMyLS44Miw0LjA2LS45OC43NC0uMTYsMS42LS4yNSwyLjU4LS4yNSwxLjE1LDAsMi4wMS4zMywyLjU4Ljk4LjU3LjY2Ljg2LDEuNDguODYsMi40NmgwWiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTIwNzguMTksNTAxLjUzYzAsMS42NC0uNTMsMy4wNC0xLjYsNC4xOC0xLjA3LDEuMTUtMi44MywxLjcyLTUuMjksMS43MmgtMTUzLjk4di01LjloNjguMzhjMi45NSwwLDQuNDMtMS44LDQuNDMtNS40MSwwLTMyLjk2LTIuOTktNTYuNjEtOC45OC03MC45NnMtMTIuMTgtMjEuNTItMTguNTctMjEuNTJjLTQuNDMsMC04LjUzLDIuMzQtMTIuMyw3LjAxcy02Ljg1LDEyLjc1LTkuMjIsMjQuMjNjLTIuMzgsMTEuNDgtMy41NywyNy4zLTMuNTcsNDcuNDcsMCwzMy45NCw2LjgsNTguNjYsMjAuNDIsNzQuMTYsMTMuNjEsMTUuNSwzMS43MywyMy4yNCw1NC4zNiwyMy4yNCwxOC4yLDAsMzMtNC41NSw0NC40LTEzLjY1LDExLjQtOS4xLDE3LjA5LTIxLjI4LDE3LjA5LTM2LjUzLDAtLjgyLjItMS4zNS42MS0xLjYuNDEtLjI1LjctLjM3Ljg2LS4zNy40OSwwLC45NC4xNywxLjM1LjQ5LjQxLjMzLjYxLjk4LjYxLDEuOTcsMCwxOC42OS00LjcyLDM1LjQ2LTE0LjE0LDUwLjMtOS40MywxNC44NC0yMi4yNiwyNi41Ny0zOC40OSwzNS4xN3MtMzQuNiwxMi45MS01NS4xLDEyLjkxYy0yMi4zLDAtNDIuMDYtNC43Ni01OS4yOC0xNC4yN3MtMzAuNzUtMjIuNzEtNDAuNTktMzkuNmMtOS44NC0xNi44OS0xNC43Ni0zNi4zMi0xNC43Ni01OC4zLDAtMjQuNiw0LjgzLTQ1LjcxLDE0LjUxLTYzLjM0LDkuNjctMTcuNjMsMjMuNC0zMS4xNSw0MS4yLTQwLjU5LDE3Ljc5LTkuNDMsMzguNzQtMTQuMTQsNjIuODQtMTQuMTQsMjEuNDgsMCw0MC4wNSw0LjUxLDU1LjcxLDEzLjUzLDE1LjY2LDkuMDIsMjcuNzUsMjEuMzIsMzYuMjgsMzYuOSw4LjUyLDE1LjU4LDEyLjc5LDMzLjIxLDEyLjc5LDUyLjg4bC4wMy4wMloiLz4KICAgICAgICA8cGF0aCBjbGFzcz0iY2xzLTMiIGQ9Ik0yMTgzLjk2LDQwNS4xMWMtOC44NiwwLTE1Ljc0LDIuMTMtMjAuNjYsNi40cy03LjM4LDEwLTcuMzgsMTcuMjJjMCw1LjQxLDEuMjcsMTAuMzcsMy44MSwxNC44OHM3LjAxLDguNzcsMTMuNDEsMTIuNzljNi40LDQuMDIsMTUuMjUsNy45MSwyNi41NiwxMS42OCwyMS42NSw3LjM4LDM4LjUzLDE1LjQyLDUwLjY3LDI0LjExLDEyLjEzLDguNjksMjAuNjYsMTguMzcsMjUuNTgsMjkuMDIsNC45MiwxMC42Niw3LjM4LDIyLjYzLDcuMzgsMzUuOTEsMCwyMy4xMi03Ljc1LDQwLjc5LTIzLjI0LDUzLjAxLTE1LjUsMTIuMjItMzYuNDUsMTguMzMtNjIuODQsMTguMzMtMTAuMzMsMC0xOC44Mi0uOTUtMjUuNDYtMi44My02LjY0LTEuODktMTEuNzMtMy43Ny0xNS4yNS01LjY2LTMuNTMtMS44OC01Ljg3LTIuODMtNy4wMS0yLjgzLTEuOTcsMC01Ljc0Ljk1LTExLjMxLDIuODMtNS41OCwxLjg5LTExLjExLDMuNzctMTYuNiw1LjY2LTUuNSwxLjg4LTkuMTQsMi44My0xMC45NSwyLjgzLS42NiwwLTEuNC0uMjEtMi4yMS0uNjItLjgyLS40MS0xLjQtMS4zNS0xLjcyLTIuODNsLTEwLjMzLTc4LjIyYy0uMTctMS44LS4xNy0zLjIsMC00LjE4LjE2LS45OC40OS0xLjU2Ljk4LTEuNzIuNDktLjMzLjk4LS4zNywxLjQ4LS4xMi40OS4yNS45OC43OCwxLjQ4LDEuNiwxMi40NiwyMC42NiwyMy43NCwzNi44MSwzMy44Miw0OC40NnMxOS44NCwxOS44NCwyOS4yNywyNC42YzkuNDMsNC43NiwxOS4zOSw3LjEzLDI5Ljg4LDcuMTMsOS4zNSwwLDE2LjM2LTIuMzgsMjEuMDMtNy4xM3M3LjAxLTExLjA3LDcuMDEtMTguOTRjMC02LjA2LTEuNDQtMTEuNi00LjMtMTYuNi0yLjg3LTUtOC4xNi05LjYzLTE1Ljg2LTEzLjktNy43MS00LjI2LTE4LjY5LTguMzYtMzIuOTYtMTIuMy0xOC44Ni01LjQxLTMzLjgyLTEyLjE4LTQ0Ljg5LTIwLjI5LTExLjA3LTguMTItMTguOTgtMTcuMy0yMy43NC0yNy41NXMtNy4xMy0yMS4zNi03LjEzLTMzLjMzYzAtMTUuNDEsMy43Ny0yOC42NiwxMS4zMS0zOS43Miw3LjU0LTExLjA3LDE3LjY3LTE5LjU5LDMwLjM4LTI1LjU4LDEyLjcxLTUuOTgsMjYuNjktOC45OCw0MS45NC04Ljk4LDkuMTgsMCwxNy4xMywxLjE1LDIzLjg2LDMuNDQsNi43MiwyLjMsMTIuMDksNC41OSwxNi4xMSw2Ljg5LDQuMDIsMi4zLDYuNDMsMy40NCw3LjI2LDMuNDQsMS4zMSwwLDQuNTktMS4wMiw5Ljg0LTMuMDcsNS4yNS0yLjA1LDEwLjUzLTQuMSwxNS44Ny02LjE1LDUuMzMtMi4wNSw4Ljg5LTMuMDcsMTAuNy0zLjA3LDEuMzEsMCwyLjUuNTMsMy41NywxLjYsMS4wNiwxLjA3LDEuNjgsMi44MywxLjg1LDUuMjlsOC4zNiw2NC40NGMuMzMsMi4xMy4zNywzLjY5LjEyLDQuNjdzLS43OCwxLjcyLTEuNiwyLjIxYy0uMTcuMTctLjQ5LjA0LS45OC0uMzdzLTEuMTUtLjk0LTEuOTctMS42Yy0xNS45MS0yNS4wOS0zMC42Mi00My4xNy00NC4xNS01NC4yNC0xMy41My0xMS4wNy0yNy4xOC0xNi42LTQwLjk1LTE2LjZoLS4wNFoiLz4KICAgICAgPC9nPgogICAgPC9nPgogICAgPGcgaWQ9InV1aWQtNmFkYTZkOGMtZGQ4NC00NmYyLTk2ZDEtZjQwMmQ5MTI4ZjhjIiBkYXRhLW5hbWU9IkxheWVyIDItMiI+CiAgICAgIDxnPgogICAgICAgIDxwb2x5Z29uIGNsYXNzPSJjbHMtMyIgcG9pbnRzPSIyMDk4LjUgMjU1LjcxIDIxODIuNjIgMzM5LjgzIDIxODIuNjIgMzM5LjgzIDIyODMuMzMgMzM5LjgzIDIyODMuMzMgMjM5LjEyIDIyODMuMzMgMjM5LjEyIDIxOTkuMjEgMTU1IDIxODIuNjIgMTcxLjU5IDIxODIuNjMgMjM5LjEyIDIxODIuNjIgMjM5LjEyIDIxODIuNjIgMjM5LjEyIDIxMTUuMDkgMjM5LjEyIDIwOTguNSAyNTUuNzEiLz4KICAgICAgICA8cG9seWdvbiBjbGFzcz0iY2xzLTMiIHBvaW50cz0iMTk1Mi4xMiAxNTguODggMTg2OCAyNDMgMTg2OCAyNDMgMTg2OCAzNDMuNyAxOTY4LjcxIDM0My43IDE5NjguNzEgMzQzLjcgMjA1Mi44MyAyNTkuNTkgMjAzNi4yNCAyNDMgMTk2OC43MSAyNDMgMTk2OC43MSAyNDMgMTk2OC43MSAyNDMgMTk2OC43MSAxNzUuNDcgMTk1Mi4xMiAxNTguODgiLz4KICAgICAgICA8cG9seWdvbiBjbGFzcz0iY2xzLTMiIHBvaW50cz0iMjAyNC40NCAzNDIuMjQgMjA3OS4yMSAyODcuNDggMjEzMi45NiAzNDEuMjMgMjAyNC40NCAzNDIuMjQiLz4KICAgICAgICA8cG9seWdvbiBjbGFzcz0iY2xzLTMiIHBvaW50cz0iMjA0My4xIDYwLjE1IDE5OTkuNzggNjAuMTUgMTk5OS43OCAxMDMuNDcgMTk2OS4xNCAxMzQuMSAxOTk5Ljc4IDE2NC43MyAxOTk5Ljc4IDIwOC4wNSAyMDQzLjEgMjA4LjA1IDIwNzMuNzMgMjM4LjY4IDIxMDQuMzYgMjA4LjA1IDIxNDcuNjggMjA4LjA1IDIxNDcuNjggMTY0LjczIDIxNzguMzEgMTM0LjEgMjE0Ny42OCAxMDMuNDcgMjE0Ny42OCA2MC4xNSAyMTA0LjM2IDYwLjE1IDIwNzMuNzMgMjkuNTIgMjA0My4xIDYwLjE1Ii8+CiAgICAgIDwvZz4KICAgIDwvZz4KICA8L2c+Cjwvc3ZnPg==" alt="Sacred Chronicles" style="height: 44px; width: auto; display: block;">
+      </a>
+      <p style="margin: 0; font-size: 14px; line-height: 1.6; color: rgba(240,234,217,0.68);">Cinematic films preserving the people, places and stories that shaped the Muslim world.</p>
+    </div>
+    <nav style="display: flex; flex-direction: column; gap: 10px; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;">
+      <a href="#vision" style="color: rgba(240,234,217,0.68);">Our vision</a>
+      <a href="#story" style="color: rgba(240,234,217,0.68);">Our story</a>
+      <a href="#donate" style="color: rgba(240,234,217,0.68);">Donate</a>
+    </nav>
+    <div style="display: flex; flex-direction: column; gap: 10px; font-size: 13px; color: rgba(240,234,217,0.68);">
+      <span>© 2026 Sacred Chronicles. All rights reserved.</span>
+      <a href="/privacy" style="font-size: 13px; color: rgba(240,234,217,0.68);">Privacy policy</a>
+      <a href="/terms" style="font-size: 13px; color: rgba(240,234,217,0.68);">Terms and conditions</a>
+    </div>
+  </footer>
+</div>
+
+
+
+
+<script>
+(function () {
+  const LINKS = {
+    10: 'https://buy.stripe.com/3cI00l9ma78JctzdW07IY03',
+    30: 'https://buy.stripe.com/28EbJ3eGuboZ2SZ8BG7IY04',
+    100: 'https://buy.stripe.com/9B600l55UboZ3X37xC7IY05'
+  };
+  const DAILY = { 10: '33p', 30: '£1', 100: '£3.29' };
+  const SPOKEN = {
+    10: '£10 monthly is approximately 33 pence per day.',
+    30: '£30 monthly is approximately one pound per day.',
+    100: '£100 monthly is approximately three pounds and twenty-nine pence per day.'
+  };
+  let currentAmount = 10;
+  let currentDisplay = DAILY[currentAmount];
+  const counter = document.getElementById('daily-counter');
+  const monthlyLine = document.getElementById('monthly-line');
+  const announcement = document.getElementById('donation-announcement');
+  const checkout = document.getElementById('monthly-checkout');
+  const comparison = document.getElementById('comparison-amount');
+  const buttons = Array.from(document.querySelectorAll('.amount-ticket'));
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  function splitDisplay(value) {
+    return Array.from(value).map(function (char) {
+      return /\d/.test(char) ? { type: 'digit', value: char } : { type: 'static', value: char };
+    });
+  }
+
+  function digitList(value) {
+    return splitDisplay(value).filter(function (token) { return token.type === 'digit'; }).map(function (token) { return token.value; });
+  }
+
+  function renderInitial(value) {
+    counter.innerHTML = '';
+    splitDisplay(value).forEach(function (token) {
+      if (token.type === 'digit') {
+        const cell = document.createElement('span');
+        cell.className = 'roll-cell';
+        const strip = document.createElement('span');
+        strip.className = 'roll-strip';
+        const digit = document.createElement('span');
+        digit.textContent = token.value;
+        strip.appendChild(digit);
+        cell.appendChild(strip);
+        counter.appendChild(cell);
+      } else {
+        const part = document.createElement('span');
+        part.className = 'counter-static';
+        part.textContent = token.value;
+        counter.appendChild(part);
+      }
+    });
+  }
+
+  function animateCounter(nextDisplay, direction) {
+    if (reducedMotion.matches) {
+      renderInitial(nextDisplay);
+      currentDisplay = nextDisplay;
+      return;
+    }
+    const oldDigits = digitList(currentDisplay);
+    const nextTokens = splitDisplay(nextDisplay);
+    const newDigits = digitList(nextDisplay);
+    const maxDigits = Math.max(oldDigits.length, newDigits.length);
+    const paddedOld = Array(maxDigits - oldDigits.length).fill('0').concat(oldDigits);
+    const paddedNew = Array(maxDigits - newDigits.length).fill('0').concat(newDigits);
+    let digitIndex = maxDigits - newDigits.length;
+    counter.innerHTML = '';
+
+    nextTokens.forEach(function (token) {
+      if (token.type === 'static') {
+        const staticPart = document.createElement('span');
+        staticPart.className = 'counter-static';
+        staticPart.textContent = token.value;
+        counter.appendChild(staticPart);
+        return;
+      }
+      const oldDigit = paddedOld[digitIndex] || '0';
+      const newDigit = paddedNew[digitIndex] || token.value;
+      digitIndex += 1;
+      const cell = document.createElement('span');
+      cell.className = 'roll-cell';
+      const strip = document.createElement('span');
+      strip.className = 'roll-strip';
+      const first = document.createElement('span');
+      const second = document.createElement('span');
+      if (direction === 'up') {
+        first.textContent = oldDigit;
+        second.textContent = newDigit;
+        strip.append(first, second);
+        strip.style.transform = 'translateY(0)';
+      } else {
+        first.textContent = newDigit;
+        second.textContent = oldDigit;
+        strip.append(first, second);
+        strip.style.transform = 'translateY(-1.14em)';
+      }
+      cell.appendChild(strip);
+      counter.appendChild(cell);
+      const delay = Math.min((digitIndex - 1) * 55, 140);
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          strip.style.transition = 'transform 620ms cubic-bezier(0.22, 1, 0.36, 1) ' + delay + 'ms';
+          strip.style.transform = direction === 'up' ? 'translateY(-1.14em)' : 'translateY(0)';
+        });
+      });
+    });
+    window.setTimeout(function () {
+      renderInitial(nextDisplay);
+      currentDisplay = nextDisplay;
+    }, 860);
+  }
+
+  function selectAmount(amount, focusButton) {
+    const previous = currentAmount;
+    currentAmount = amount;
+    buttons.forEach(function (button) {
+      const selected = Number(button.dataset.amount) === amount;
+      button.classList.toggle('is-selected', selected);
+      button.setAttribute('aria-checked', selected ? 'true' : 'false');
+      if (selected && focusButton) button.focus();
+    });
+    animateCounter(DAILY[amount], amount >= previous ? 'up' : 'down');
+    monthlyLine.textContent = '£' + amount + ' donated monthly';
+    checkout.textContent = 'Donate £' + amount + ' monthly';
+    checkout.href = LINKS[amount];
+    comparison.textContent = '£' + amount;
+    announcement.textContent = SPOKEN[amount];
+  }
+
+  buttons.forEach(function (button, index) {
+    button.addEventListener('click', function () { selectAmount(Number(button.dataset.amount), false); });
+    button.addEventListener('keydown', function (event) {
+      if (!['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp'].includes(event.key)) return;
+      event.preventDefault();
+      const change = (event.key === 'ArrowRight' || event.key === 'ArrowDown') ? 1 : -1;
+      const nextIndex = (index + change + buttons.length) % buttons.length;
+      selectAmount(Number(buttons[nextIndex].dataset.amount), true);
+    });
+  });
+
+  renderInitial(currentDisplay);
+
+  const revealItems = Array.from(document.querySelectorAll('[data-reveal]'));
+  if ('IntersectionObserver' in window && !reducedMotion.matches) {
+    const observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('rv-in');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -4% 0px' });
+    revealItems.forEach(function (item) { observer.observe(item); });
+  } else {
+    revealItems.forEach(function (item) { item.classList.add('rv-in'); });
+  }
+})();
+</script>
+
+</body>
+</html>
