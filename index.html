@@ -102,8 +102,120 @@
   .sc-nav-link:hover { color: #C89A3C; }
   .short-label { display: none; }
 
-  .amount-options { display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 10px !important; width: 100%; max-width: 560px; }
-  @media (max-width: 480px) { .amount-options { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 8px !important; } .amount-ticket-value { font-size: 18px; } .amount-ticket-label { font-size: 7.5px; } }
+
+  /* Donation-first hero */
+  .hero-donate-wrap {
+    position: relative;
+    width: min(720px, calc(100% - 40px));
+    padding: clamp(52px, 8vw, 96px) clamp(20px, 4vw, 56px);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+  .hero-donate-title {
+    margin: 0;
+    font-size: clamp(76px, 10vw, 150px);
+    line-height: 0.82;
+    letter-spacing: -0.065em;
+    color: #F0EAD9;
+  }
+  .hero-donate-sub {
+    margin: 4px 0 2px;
+    max-width: 34ch;
+    font-size: clamp(17px, 1.35vw, 21px);
+    line-height: 1.5;
+    color: rgba(240,234,217,0.82);
+  }
+  .hero-amounts {
+    width: 100%;
+    max-width: 560px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 6px;
+  }
+  .hero-amount {
+    min-height: 76px;
+    border: 1px solid rgba(240,234,217,0.28);
+    border-radius: 12px;
+    background: rgba(15,13,12,0.52);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #F0EAD9;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    transition: transform 220ms ease, background 220ms ease, border-color 220ms ease;
+  }
+  .hero-amount:hover { transform: translateY(-2px); border-color: #C89A3C; }
+  .hero-amount.is-selected {
+    background: #F0EAD9;
+    color: #0F0D0C;
+    border-color: #F0EAD9;
+  }
+  .hero-amount strong {
+    font-size: clamp(23px, 2vw, 30px);
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+  .hero-amount span {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    opacity: .68;
+  }
+  .hero-checkout {
+    width: 100%;
+    max-width: 560px;
+    min-height: 78px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: #C89A3C;
+    color: #0F0D0C !important;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: clamp(20px, 2vw, 28px) !important;
+    font-weight: 750 !important;
+    letter-spacing: -0.025em !important;
+    text-transform: none;
+    box-shadow: 0 18px 50px rgba(0,0,0,.22);
+    transition: transform 220ms ease, filter 220ms ease;
+  }
+  .hero-checkout:hover { transform: translateY(-2px); filter: brightness(1.05); opacity: 1; }
+  .hero-micro {
+    margin: -5px 0 0;
+    font-size: 12px;
+    color: rgba(240,234,217,0.62);
+  }
+
+  /* Bigger monthly controls */
+  .amount-options { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+  .amount-ticket { min-height: 82px; border-radius: 10px; }
+  .amount-ticket-value { font-size: 25px; }
+  #monthly-checkout {
+    min-height: 74px !important;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+    font-size: clamp(18px, 1.7vw, 24px) !important;
+    font-weight: 750 !important;
+    letter-spacing: -0.02em !important;
+    text-transform: none !important;
+    border-radius: 11px !important;
+  }
+
+  .amount-options { display: grid !important; grid-template-columns: repeat(4, minmax(0, 1fr)) !important; gap: 10px !important; width: 100%; max-width: 560px; }
+  @media (max-width: 480px) {
+    .amount-options { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 9px !important; }
+    .amount-ticket { min-height: 78px; }
+    .amount-ticket-value { font-size: 24px; }
+    .amount-ticket-label { font-size: 8px; }
+  }
   .amount-ticket { min-height: 66px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; border-radius: 8px; border: 1px solid rgba(15,13,12,0.18); background: rgba(255,255,255,0.25); color: #0F0D0C; cursor: pointer; transition: background 260ms ease, color 260ms ease, border-color 260ms ease, transform 220ms ease; }
   .amount-ticket:hover { transform: translateY(-1px); border-color: rgba(200,154,60,0.75); }
   .amount-ticket.is-selected { background: #0F0D0C; color: #F0EAD9; border-color: #C89A3C; box-shadow: inset 0 0 0 3px #0F0D0C, inset 0 0 0 4px rgba(200,154,60,0.55); }
@@ -127,6 +239,13 @@
     .short-label { display: inline; }
     .sc-nav [data-cta='nav'] { min-height: 40px !important; padding: 0 13px !important; font-size: 9px !important; letter-spacing: 0.13em !important; }
     .counter-display { font-size: clamp(48px, 17vw, 68px); min-width: 5.2em; }
+    .hero-donate-wrap { width: auto; padding: 48px 18px 54px; gap: 16px; }
+    .hero-donate-title { font-size: clamp(74px, 24vw, 112px); }
+    .hero-donate-sub { font-size: 17px; max-width: 29ch; }
+    .hero-amounts { gap: 7px; }
+    .hero-amount { min-height: 70px; border-radius: 10px; }
+    .hero-amount strong { font-size: 23px; }
+    .hero-checkout { min-height: 76px; font-size: 22px !important; border-radius: 10px; }
   }
   .ld { opacity: 0; transform: translateY(14px); animation: riseIn 700ms cubic-bezier(0.22,1,0.36,1) forwards; }
   .ld1 { animation-delay: 60ms; }
@@ -154,28 +273,28 @@
 </nav>
 </div>
 </header>
-<section data-screen-label="Hero" id="top" style="position: relative; min-height: clamp(560px, 92dvh, 860px); display: flex; align-items: center; overflow: hidden;">
+<section data-screen-label="Hero" id="top" style="position: relative; min-height: clamp(620px, 92dvh, 900px); display: flex; align-items: center; overflow: hidden;">
 <img alt="The Sacred Chronicles crew reviewing footage on a cinema camera among the palm groves" loading="eager" src="https://sacred-chronicles.vercel.app/photos/hero-filming.jpg" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center;"/>
-<div aria-hidden="true" style="position: absolute; inset: 0; background: linear-gradient(90deg, rgba(15,13,12,0.96) 0%, rgba(15,13,12,0.8) 34%, rgba(15,13,12,0.24) 66%, rgba(15,13,12,0.08) 100%);"></div>
-<div style="position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 22px; max-width: 640px; padding: clamp(48px, 8vw, 96px) clamp(20px, 4vw, 56px);">
-<div class="ld ld1" style="display: flex; align-items: center; gap: 10px; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.22em; text-transform: uppercase; color: #C89A3C;">
-<span style="width: 24px; height: 1px; background: #C89A3C; display: block;"></span>The living archive
-      </div>
-<h1 class="ld ld2" style="margin: 0; font-size: clamp(46px, 5.4vw, 80px); line-height: 1.02; font-weight: 700; letter-spacing: -0.03em; color: #F0EAD9; text-wrap: balance; max-width: 15ch;">Stories worth seeing. History <span style="font-family: 'Instrument Serif', Georgia, serif; font-style: italic; font-weight: 400; letter-spacing: -0.01em; color: #C89A3C;">worth carrying.</span></h1>
-<p class="ld ld3" style="margin: 0; max-width: 44ch; font-size: clamp(16px, 1.15vw, 18px); line-height: 1.6; color: rgba(240,234,217,0.8);">Sacred Chronicles creates cinematic documentaries about Muslim history, Islamic civilisation, and the people, places and stories that shaped the Muslim world.</p>
-<p class="ld ld4" style="margin: -8px 0 0; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(240,234,217,0.68);">Filmed where history happened. Created for the Ummah.</p>
-<div class="ld ld5" style="display: flex; align-items: center; gap: 22px; flex-wrap: wrap; margin-top: 4px;">
-<a data-cta="hero" href="#donate" style="display: flex; align-items: center; justify-content: center; min-height: 56px; padding: 0 36px; background: #F0EAD9; color: #0F0D0C; border-radius: 9px; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; letter-spacing: 0.2em; text-transform: uppercase;">Donate</a>
-<a href="#vision" style="font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(240,234,217,0.8); border-bottom: 1px solid rgba(200,154,60,0.6); padding-bottom: 4px;">Discover the vision</a>
+<div aria-hidden="true" style="position: absolute; inset: 0; background: linear-gradient(90deg, rgba(15,13,12,0.98) 0%, rgba(15,13,12,0.88) 38%, rgba(15,13,12,0.32) 72%, rgba(15,13,12,0.12) 100%);"></div>
+<div class="hero-donate-wrap">
+<h1 class="ld ld1 hero-donate-title">Donate.</h1>
+<p class="ld ld2 hero-donate-sub">Help fund the next Sacred Chronicles film.</p>
+
+<div class="ld ld3 hero-amounts" aria-label="Choose a monthly donation amount">
+<button class="hero-amount" data-hero-amount="10" type="button"><strong>£10</strong><span>a month</span></button>
+<button class="hero-amount is-selected" data-hero-amount="30" type="button"><strong>£30</strong><span>a month</span></button>
+<button class="hero-amount" data-hero-amount="50" type="button"><strong>£50</strong><span>a month</span></button>
 </div>
+
+<a class="ld ld4 hero-checkout" data-cta="hero" href="https://buy.stripe.com/28EbJ3eGuboZ2SZ8BG7IY04" id="hero-checkout" rel="noopener noreferrer" target="_blank">Donate £30 monthly</a>
+<p class="ld ld5 hero-micro">Monthly support. Change or cancel at any time.</p>
 </div>
 </section>
 <section data-screen-label="Donation" id="donate" style="background: #F0EAD9; color: #0F0D0C; display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); align-items: start; gap: clamp(28px, 4vw, 64px); padding: clamp(56px, 7vw, 104px) clamp(20px, 4vw, 56px);">
 <div style="display: flex; flex-direction: column; gap: clamp(24px, 3vw, 34px); max-width: 620px;">
 <div style="display: flex; flex-direction: column; gap: 16px;">
-<h2 style="margin: 0; font-size: clamp(38px, 4.6vw, 68px); line-height: 1.02; font-weight: 700; letter-spacing: -0.03em; color: #0F0D0C;">Carry the <span style="font-family: 'Instrument Serif', Georgia, serif; font-style: italic; font-weight: 400; letter-spacing: -0.01em; color: #C89A3C;">story.</span></h2>
-<p style="margin: 0; max-width: 48ch; font-size: clamp(16px, 1.15vw, 18px); line-height: 1.6; color: #0F0D0C;">Your monthly donation helps us create cinematic films that preserve the people, places and stories that shaped the Muslim world.</p>
-<p style="margin: 0; max-width: 48ch; font-size: 15px; line-height: 1.6; color: rgba(15,13,12,0.66);">Choose an amount that feels comfortable. Every donation helps move the next film forward.</p>
+<h2 style="margin: 0; font-size: clamp(44px, 5vw, 74px); line-height: 0.98; font-weight: 700; letter-spacing: -0.045em; color: #0F0D0C;">Support <span style="font-family: 'Instrument Serif', Georgia, serif; font-style: italic; font-weight: 400; color: #C89A3C;">monthly.</span></h2>
+<p style="margin: 0; max-width: 38ch; font-size: clamp(16px, 1.15vw, 19px); line-height: 1.55; color: rgba(15,13,12,0.72);">Choose what you can carry each month.</p>
 </div>
 <div aria-label="Monthly donation amount" id="amount-options" role="radiogroup" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; max-width: 560px;">
 <button aria-checked="false" class="amount-ticket" data-amount="5" role="radio" type="button">
@@ -368,9 +487,7 @@
 <div style="position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 14px;">
 <a data-cta="final" href="#donate" style="display: flex; align-items: center; justify-content: center; min-width: 220px; min-height: 58px; padding: 0 40px; background: #F0EAD9; color: #0F0D0C; border-radius: 9px; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; letter-spacing: 0.2em; text-transform: uppercase;">Donate</a>
 <p style="margin: 0; font-size: 13px; color: rgba(240,234,217,0.68);">Secure monthly donation. Change or cancel at any time.</p>
-<div style="display: flex; align-items: center; gap: 10px; margin-top: 6px; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: #C89A3C;">
-<span style="width: 22px; height: 1px; background: #C89A3C; display: block;"></span>The living archive
-      </div>
+
 </div>
 </section>
 <footer style="background: #0F0D0C; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: clamp(20px, 3vw, 56px); padding: clamp(40px, 5vw, 72px) clamp(20px, 4vw, 56px) 88px; border-top: 1px solid rgba(240,234,217,0.16);">
@@ -416,8 +533,10 @@
   const monthlyLine = document.getElementById('monthly-line');
   const announcement = document.getElementById('donation-announcement');
   const checkout = document.getElementById('monthly-checkout');
+  const heroCheckout = document.getElementById('hero-checkout');
   const comparison = document.getElementById('comparison-amount');
   const buttons = Array.from(document.querySelectorAll('.amount-ticket'));
+  const heroButtons = Array.from(document.querySelectorAll('[data-hero-amount]'));
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   function splitDisplay(value) {
@@ -520,14 +639,23 @@
       button.setAttribute('aria-checked', selected ? 'true' : 'false');
       if (selected && focusButton) button.focus();
     });
+    heroButtons.forEach(function (button) {
+      button.classList.toggle('is-selected', Number(button.dataset.heroAmount) === amount);
+    });
     animateCounter(DAILY[amount], amount >= previous ? 'up' : 'down');
     monthlyLine.textContent = '£' + amount + ' donated monthly';
     checkout.textContent = 'Donate £' + amount + ' monthly';
     checkout.setAttribute('aria-label', 'Open Stripe checkout for a £' + amount + ' monthly donation in a new tab');
     checkout.href = LINKS[amount];
+    heroCheckout.textContent = 'Donate £' + amount + ' monthly';
+    heroCheckout.href = LINKS[amount];
     comparison.textContent = '£' + amount;
     announcement.textContent = SPOKEN[amount];
   }
+
+  heroButtons.forEach(function (button) {
+    button.addEventListener('click', function () { selectAmount(Number(button.dataset.heroAmount), false); });
+  });
 
   buttons.forEach(function (button, index) {
     button.addEventListener('click', function () { selectAmount(Number(button.dataset.amount), false); });
