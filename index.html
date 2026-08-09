@@ -131,7 +131,7 @@
     width: 100%;
     max-width: 560px;
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 10px;
     margin-top: 6px;
   }
@@ -242,7 +242,7 @@
     .hero-donate-wrap { width: auto; padding: 48px 18px 54px; gap: 16px; }
     .hero-donate-title { font-size: clamp(74px, 24vw, 112px); }
     .hero-donate-sub { font-size: 17px; max-width: 29ch; }
-    .hero-amounts { gap: 7px; }
+    .hero-amounts { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
     .hero-amount { min-height: 70px; border-radius: 10px; }
     .hero-amount strong { font-size: 23px; }
     .hero-checkout { min-height: 76px; font-size: 22px !important; border-radius: 10px; }
@@ -269,11 +269,11 @@
 <nav aria-label="Primary navigation" class="sc-nav">
 <a class="sc-nav-link" href="#vision"><span class="full-label">Our vision</span><span class="short-label">Vision</span></a>
 <a class="sc-nav-link" href="#story"><span class="full-label">Our story</span><span class="short-label">Story</span></a>
-<a data-cta="nav" href="#donate" style="display: flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 24px; background: #F0EAD9; color: #0F0D0C; border-radius: 9px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; white-space: nowrap;">Donate</a>
+<a data-cta="nav" href="#top" style="display: flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 24px; background: #F0EAD9; color: #0F0D0C; border-radius: 9px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; white-space: nowrap;">Donate</a>
 </nav>
 </div>
 </header>
-<section data-screen-label="Hero" id="top" style="position: relative; min-height: clamp(620px, 92dvh, 900px); display: flex; align-items: center; overflow: hidden;">
+<section data-screen-label="Hero" id="top" data-donate-anchor="true" style="position: relative; min-height: clamp(620px, 92dvh, 900px); display: flex; align-items: center; overflow: hidden;">
 <img alt="The Sacred Chronicles crew reviewing footage on a cinema camera among the palm groves" loading="eager" src="https://sacred-chronicles.vercel.app/photos/hero-filming.jpg" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center;"/>
 <div aria-hidden="true" style="position: absolute; inset: 0; background: linear-gradient(90deg, rgba(15,13,12,0.98) 0%, rgba(15,13,12,0.88) 38%, rgba(15,13,12,0.32) 72%, rgba(15,13,12,0.12) 100%);"></div>
 <div class="hero-donate-wrap">
@@ -281,6 +281,7 @@
 <p class="ld ld2 hero-donate-sub">Help fund the next Sacred Chronicles film.</p>
 
 <div class="ld ld3 hero-amounts" aria-label="Choose a monthly donation amount">
+<button class="hero-amount" data-hero-amount="5" type="button"><strong>£5</strong><span>a month</span></button>
 <button class="hero-amount" data-hero-amount="10" type="button"><strong>£10</strong><span>a month</span></button>
 <button class="hero-amount is-selected" data-hero-amount="30" type="button"><strong>£30</strong><span>a month</span></button>
 <button class="hero-amount" data-hero-amount="50" type="button"><strong>£50</strong><span>a month</span></button>
@@ -290,42 +291,9 @@
 <p class="ld ld5 hero-micro">Monthly support. Change or cancel at any time.</p>
 </div>
 </section>
-<section data-screen-label="Donation" id="donate" style="background: #F0EAD9; color: #0F0D0C; display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); align-items: start; gap: clamp(28px, 4vw, 64px); padding: clamp(56px, 7vw, 104px) clamp(20px, 4vw, 56px);">
-<div style="display: flex; flex-direction: column; gap: clamp(24px, 3vw, 34px); max-width: 620px;">
-<div style="display: flex; flex-direction: column; gap: 16px;">
-<h2 style="margin: 0; font-size: clamp(44px, 5vw, 74px); line-height: 0.98; font-weight: 700; letter-spacing: -0.045em; color: #0F0D0C;">Support <span style="font-family: 'Instrument Serif', Georgia, serif; font-style: italic; font-weight: 400; color: #C89A3C;">monthly.</span></h2>
-<p style="margin: 0; max-width: 38ch; font-size: clamp(16px, 1.15vw, 19px); line-height: 1.55; color: rgba(15,13,12,0.72);">Choose what you can carry each month.</p>
 </div>
-<div aria-label="Monthly donation amount" id="amount-options" role="radiogroup" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; max-width: 560px;">
-<button aria-checked="false" class="amount-ticket" data-amount="5" role="radio" type="button">
-<span class="amount-ticket-value">£5</span><span class="amount-ticket-label">Monthly</span>
-</button>
-<button aria-checked="false" class="amount-ticket" data-amount="10" role="radio" type="button">
-<span class="amount-ticket-value">£10</span><span class="amount-ticket-label">Monthly</span>
-</button>
-<button aria-checked="true" class="amount-ticket is-selected" data-amount="30" role="radio" type="button">
-<span class="amount-ticket-value">£30</span><span class="amount-ticket-label">Monthly</span>
-</button>
-<button aria-checked="false" class="amount-ticket" data-amount="50" role="radio" type="button">
-<span class="amount-ticket-value">£50</span><span class="amount-ticket-label">Monthly</span>
-</button>
-</div>
-<div style="display: flex; flex-direction: column; gap: 12px; padding: clamp(18px, 2vw, 26px) 0; border-top: 1px solid rgba(15,13,12,0.16); border-bottom: 1px solid rgba(15,13,12,0.16);">
-<div class="counter-row">
-<div aria-hidden="true" class="counter-display" id="daily-counter"></div>
-<span class="counter-unit">a day</span>
-</div>
-<div id="monthly-line" style="font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(15,13,12,0.66);">£30 donated monthly</div>
-<div aria-live="polite" id="donation-announcement" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);">£30 monthly is approximately one pound per day.</div>
-</div>
-<div style="display: flex; flex-direction: column; gap: 12px; align-items: flex-start;">
-<a data-cta="main" href="https://buy.stripe.com/28EbJ3eGuboZ2SZ8BG7IY04" id="monthly-checkout" rel="noopener noreferrer" style="width: 100%; max-width: 560px; min-height: 58px; display: flex; align-items: center; justify-content: center; border: 0; background: #0F0D0C; color: #F0EAD9; border-radius: 9px; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer; transition: opacity 220ms; box-sizing: border-box;" target="_blank">Donate £30 monthly</a>
-<p style="margin: 0; font-size: 13px; color: rgba(15,13,12,0.66);">Secure monthly donation. Change or cancel at any time.</p>
-</div>
-</div>
-</section></div>
 <div style="width: 100%;">
-<img alt="The crew sharing tea on a rug beneath the palms between shoots" loading="eager" src="https://sacred-chronicles.vercel.app/photos/rug-tea.jpg" style="width: 100%; height: clamp(240px, 44vw, 620px); object-fit: cover; border-radius: 12px; display: block;"/>
+<img alt="The crew sharing tea on a rug beneath the palms between shoots" loading="eager" src="https://sacred-chronicles.vercel.app/photos/rug-tea.jpg" style="width: 100%; height: clamp(300px, 48vw, 700px); object-fit: cover; display: block;"/>
 </div>
 
 <section class="rv" data-reveal="1" data-screen-label="Community funding" style="background: #0F0D0C; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: clamp(20px, 3vw, 64px); align-items: start; padding: clamp(56px, 6vw, 88px) clamp(20px, 4vw, 56px);">
@@ -485,7 +453,7 @@
 <p style="margin: 0; max-width: 46ch; font-size: 15px; line-height: 1.6; color: rgba(240,234,217,0.68);">No advertisements inside the films. Just a community helping preserve stories that deserve to be seen.</p>
 </div>
 <div style="position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 14px;">
-<a data-cta="final" href="#donate" style="display: flex; align-items: center; justify-content: center; min-width: 220px; min-height: 58px; padding: 0 40px; background: #F0EAD9; color: #0F0D0C; border-radius: 9px; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; letter-spacing: 0.2em; text-transform: uppercase;">Donate</a>
+<a data-cta="final" href="#top" style="display: flex; align-items: center; justify-content: center; min-width: 220px; min-height: 58px; padding: 0 40px; background: #F0EAD9; color: #0F0D0C; border-radius: 9px; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; letter-spacing: 0.2em; text-transform: uppercase;">Donate</a>
 <p style="margin: 0; font-size: 13px; color: rgba(240,234,217,0.68);">Secure monthly donation. Change or cancel at any time.</p>
 
 </div>
@@ -500,7 +468,7 @@
 <nav style="display: flex; flex-direction: column; gap: 10px; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;">
 <a href="#vision" style="color: rgba(240,234,217,0.68);">Our vision</a>
 <a href="#story" style="color: rgba(240,234,217,0.68);">Our story</a>
-<a href="#donate" style="color: rgba(240,234,217,0.68);">Donate</a>
+<a href="#top" style="color: rgba(240,234,217,0.68);">Donate</a>
 <a href="https://www.youtube.com/@Sacred.chronicless/" target="_blank" rel="me noopener noreferrer" style="color: rgba(240,234,217,0.68);">YouTube</a>
 <a href="https://www.instagram.com/sacred.chronicless" target="_blank" rel="me noopener noreferrer" style="color: rgba(240,234,217,0.68);">Instagram</a>
 <a href="https://www.tiktok.com/@sacred.chronicless" target="_blank" rel="me noopener noreferrer" style="color: rgba(240,234,217,0.68);">TikTok</a>
@@ -520,157 +488,33 @@
     30: 'https://buy.stripe.com/28EbJ3eGuboZ2SZ8BG7IY04',
     50: 'https://donate.stripe.com/6oU5kFbui64FbpvdW07IY07'
   };
-  const DAILY = { 5: '£0.16', 10: '£0.33', 30: '£1.00', 50: '£1.64' };
-  const SPOKEN = {
-    5: '£5 monthly is approximately 16 pence per day.',
-    10: '£10 monthly is approximately 33 pence per day.',
-    30: '£30 monthly is approximately one pound per day.',
-    50: '£50 monthly is approximately one pound and sixty-four pence per day.'
-  };
-  let currentAmount = 30;
-  let currentDisplay = DAILY[currentAmount];
-  const counter = document.getElementById('daily-counter');
-  const monthlyLine = document.getElementById('monthly-line');
-  const announcement = document.getElementById('donation-announcement');
-  const checkout = document.getElementById('monthly-checkout');
+
   const heroCheckout = document.getElementById('hero-checkout');
-  const comparison = document.getElementById('comparison-amount');
-  const buttons = Array.from(document.querySelectorAll('.amount-ticket'));
   const heroButtons = Array.from(document.querySelectorAll('[data-hero-amount]'));
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let currentAmount = 30;
 
-  function splitDisplay(value) {
-    return Array.from(value).map(function (char) {
-      return /\d/.test(char) ? { type: 'digit', value: char } : { type: 'static', value: char };
-    });
-  }
-
-  function digitList(value) {
-    return splitDisplay(value).filter(function (token) { return token.type === 'digit'; }).map(function (token) { return token.value; });
-  }
-
-  function renderInitial(value) {
-    counter.innerHTML = '';
-    splitDisplay(value).forEach(function (token) {
-      if (token.type === 'digit') {
-        const cell = document.createElement('span');
-        cell.className = 'roll-cell';
-        const strip = document.createElement('span');
-        strip.className = 'roll-strip';
-        const digit = document.createElement('span');
-        digit.textContent = token.value;
-        strip.appendChild(digit);
-        cell.appendChild(strip);
-        counter.appendChild(cell);
-      } else {
-        const part = document.createElement('span');
-        part.className = 'counter-static';
-        part.textContent = token.value;
-        counter.appendChild(part);
-      }
-    });
-  }
-
-  function animateCounter(nextDisplay, direction) {
-    if (reducedMotion.matches) {
-      renderInitial(nextDisplay);
-      currentDisplay = nextDisplay;
-      return;
-    }
-    const oldDigits = digitList(currentDisplay);
-    const nextTokens = splitDisplay(nextDisplay);
-    const newDigits = digitList(nextDisplay);
-    const maxDigits = Math.max(oldDigits.length, newDigits.length);
-    const paddedOld = Array(maxDigits - oldDigits.length).fill('0').concat(oldDigits);
-    const paddedNew = Array(maxDigits - newDigits.length).fill('0').concat(newDigits);
-    let digitIndex = maxDigits - newDigits.length;
-    counter.innerHTML = '';
-
-    nextTokens.forEach(function (token) {
-      if (token.type === 'static') {
-        const staticPart = document.createElement('span');
-        staticPart.className = 'counter-static';
-        staticPart.textContent = token.value;
-        counter.appendChild(staticPart);
-        return;
-      }
-      const oldDigit = paddedOld[digitIndex] || '0';
-      const newDigit = paddedNew[digitIndex] || token.value;
-      digitIndex += 1;
-      const cell = document.createElement('span');
-      cell.className = 'roll-cell';
-      const strip = document.createElement('span');
-      strip.className = 'roll-strip';
-      const first = document.createElement('span');
-      const second = document.createElement('span');
-      if (direction === 'up') {
-        first.textContent = oldDigit;
-        second.textContent = newDigit;
-        strip.append(first, second);
-        strip.style.transform = 'translateY(0)';
-      } else {
-        first.textContent = newDigit;
-        second.textContent = oldDigit;
-        strip.append(first, second);
-        strip.style.transform = 'translateY(-1.14em)';
-      }
-      cell.appendChild(strip);
-      counter.appendChild(cell);
-      const delay = Math.min((digitIndex - 1) * 55, 140);
-      requestAnimationFrame(function () {
-        requestAnimationFrame(function () {
-          strip.style.transition = 'transform 620ms cubic-bezier(0.22, 1, 0.36, 1) ' + delay + 'ms';
-          strip.style.transform = direction === 'up' ? 'translateY(-1.14em)' : 'translateY(0)';
-        });
-      });
-    });
-    window.setTimeout(function () {
-      renderInitial(nextDisplay);
-      currentDisplay = nextDisplay;
-    }, 860);
-  }
-
-  function selectAmount(amount, focusButton) {
-    const previous = currentAmount;
+  function selectHeroAmount(amount) {
     currentAmount = amount;
-    buttons.forEach(function (button) {
-      const selected = Number(button.dataset.amount) === amount;
-      button.classList.toggle('is-selected', selected);
-      button.setAttribute('aria-checked', selected ? 'true' : 'false');
-      if (selected && focusButton) button.focus();
-    });
     heroButtons.forEach(function (button) {
       button.classList.toggle('is-selected', Number(button.dataset.heroAmount) === amount);
     });
-    animateCounter(DAILY[amount], amount >= previous ? 'up' : 'down');
-    monthlyLine.textContent = '£' + amount + ' donated monthly';
-    checkout.textContent = 'Donate £' + amount + ' monthly';
-    checkout.setAttribute('aria-label', 'Open Stripe checkout for a £' + amount + ' monthly donation in a new tab');
-    checkout.href = LINKS[amount];
-    heroCheckout.textContent = 'Donate £' + amount + ' monthly';
-    heroCheckout.href = LINKS[amount];
-    comparison.textContent = '£' + amount;
-    announcement.textContent = SPOKEN[amount];
+    if (heroCheckout) {
+      heroCheckout.textContent = 'Donate £' + amount + ' monthly';
+      heroCheckout.href = LINKS[amount];
+      heroCheckout.setAttribute('aria-label', 'Open Stripe checkout for a £' + amount + ' monthly donation');
+    }
   }
 
   heroButtons.forEach(function (button) {
-    button.addEventListener('click', function () { selectAmount(Number(button.dataset.heroAmount), false); });
-  });
-
-  buttons.forEach(function (button, index) {
-    button.addEventListener('click', function () { selectAmount(Number(button.dataset.amount), false); });
-    button.addEventListener('keydown', function (event) {
-      if (!['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp'].includes(event.key)) return;
-      event.preventDefault();
-      const change = (event.key === 'ArrowRight' || event.key === 'ArrowDown') ? 1 : -1;
-      const nextIndex = (index + change + buttons.length) % buttons.length;
-      selectAmount(Number(buttons[nextIndex].dataset.amount), true);
+    button.addEventListener('click', function () {
+      selectHeroAmount(Number(button.dataset.heroAmount));
     });
   });
 
-  renderInitial(currentDisplay);
+  selectHeroAmount(currentAmount);
 
   const revealItems = Array.from(document.querySelectorAll('[data-reveal]'));
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   if ('IntersectionObserver' in window && !reducedMotion.matches) {
     const observer = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
