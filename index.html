@@ -103,6 +103,87 @@
   .short-label { display: none; }
 
 
+
+  .donation-mode {
+    width: 100%;
+    max-width: 560px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 4px;
+    border: 1px solid rgba(240,234,217,0.24);
+    border-radius: 12px;
+    background: rgba(15,13,12,0.48);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .donation-mode button {
+    min-height: 46px;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    color: rgba(240,234,217,0.66);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 220ms ease, color 220ms ease;
+  }
+  .donation-mode button.is-active {
+    background: #F0EAD9;
+    color: #0F0D0C;
+  }
+  .oneoff-panel {
+    width: 100%;
+    max-width: 560px;
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .oneoff-panel.is-active { display: flex; }
+  .monthly-panel { width: 100%; max-width: 560px; }
+  .monthly-panel.is-hidden { display: none; }
+  .oneoff-card {
+    padding: 22px;
+    border: 1px solid rgba(240,234,217,0.22);
+    border-radius: 12px;
+    background: rgba(15,13,12,0.52);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .oneoff-card h2 {
+    margin: 0 0 7px;
+    font-size: clamp(25px, 2.5vw, 34px);
+    line-height: 1.05;
+    letter-spacing: -0.035em;
+    color: #F0EAD9;
+  }
+  .oneoff-card p {
+    margin: 0;
+    max-width: 36ch;
+    font-size: 14px;
+    line-height: 1.5;
+    color: rgba(240,234,217,0.68);
+  }
+  .oneoff-checkout {
+    width: 100%;
+    min-height: 78px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: #C89A3C;
+    color: #0F0D0C !important;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: clamp(20px, 2vw, 27px);
+    font-weight: 750;
+    letter-spacing: -0.025em;
+    transition: transform 220ms ease, filter 220ms ease;
+  }
+  .oneoff-checkout:hover { transform: translateY(-2px); filter: brightness(1.05); }
+
   /* Donation-first hero */
   .hero-donate-wrap {
     position: relative;
@@ -280,15 +361,32 @@
 <h1 class="ld ld1 hero-donate-title">Donate.</h1>
 <p class="ld ld2 hero-donate-sub">Help fund the next Sacred Chronicles film.</p>
 
-<div class="ld ld3 hero-amounts" aria-label="Choose a monthly donation amount">
-<button class="hero-amount" data-hero-amount="5" type="button"><strong>£5</strong><span>a month</span></button>
-<button class="hero-amount" data-hero-amount="10" type="button"><strong>£10</strong><span>a month</span></button>
-<button class="hero-amount is-selected" data-hero-amount="30" type="button"><strong>£30</strong><span>a month</span></button>
-<button class="hero-amount" data-hero-amount="50" type="button"><strong>£50</strong><span>a month</span></button>
+
+<div class="ld ld3 donation-mode" aria-label="Donation type">
+  <button class="is-active" id="mode-monthly" type="button" aria-pressed="true">Monthly</button>
+  <button id="mode-oneoff" type="button" aria-pressed="false">One-off</button>
 </div>
 
-<a class="ld ld4 hero-checkout" data-cta="hero" href="https://buy.stripe.com/28EbJ3eGuboZ2SZ8BG7IY04" id="hero-checkout" rel="noopener noreferrer" target="_blank">Donate £30 monthly</a>
-<p class="ld ld5 hero-micro">Monthly support. Change or cancel at any time.</p>
+<div class="monthly-panel" id="monthly-panel">
+  <div class="hero-amounts" aria-label="Choose a monthly donation amount">
+    <button class="hero-amount" data-hero-amount="5" type="button"><strong>£5</strong><span>a month</span></button>
+    <button class="hero-amount" data-hero-amount="10" type="button"><strong>£10</strong><span>a month</span></button>
+    <button class="hero-amount is-selected" data-hero-amount="30" type="button"><strong>£30</strong><span>a month</span></button>
+    <button class="hero-amount" data-hero-amount="50" type="button"><strong>£50</strong><span>a month</span></button>
+  </div>
+
+  <a class="hero-checkout" data-cta="hero" href="https://buy.stripe.com/28EbJ3eGuboZ2SZ8BG7IY04" id="hero-checkout" rel="noopener noreferrer" target="_blank" style="margin-top:12px;">Donate £30 monthly</a>
+  <p class="hero-micro" style="margin-top:10px;">Monthly support. Change or cancel at any time.</p>
+</div>
+
+<div class="oneoff-panel" id="oneoff-panel">
+  <div class="oneoff-card">
+    <h2>Give once.</h2>
+    <p>Choose any amount securely on Stripe. No subscription.</p>
+  </div>
+  <a class="oneoff-checkout" href="https://donate.stripe.com/aFaaEZcymakVdxDbNS7IY08" rel="noopener noreferrer" target="_blank">Donate any amount once</a>
+  <p class="hero-micro">You choose the amount on Stripe.</p>
+</div>
 </div>
 </section>
 </div>
@@ -491,6 +589,10 @@
 
   const heroCheckout = document.getElementById('hero-checkout');
   const heroButtons = Array.from(document.querySelectorAll('[data-hero-amount]'));
+  const monthlyBtn = document.getElementById('mode-monthly');
+  const oneoffBtn = document.getElementById('mode-oneoff');
+  const monthlyPanel = document.getElementById('monthly-panel');
+  const oneoffPanel = document.getElementById('oneoff-panel');
   let currentAmount = 30;
 
   function selectHeroAmount(amount) {
@@ -505,13 +607,27 @@
     }
   }
 
+  function setMode(mode) {
+    const monthly = mode === 'monthly';
+    monthlyBtn.classList.toggle('is-active', monthly);
+    oneoffBtn.classList.toggle('is-active', !monthly);
+    monthlyBtn.setAttribute('aria-pressed', monthly ? 'true' : 'false');
+    oneoffBtn.setAttribute('aria-pressed', monthly ? 'false' : 'true');
+    monthlyPanel.classList.toggle('is-hidden', !monthly);
+    oneoffPanel.classList.toggle('is-active', !monthly);
+  }
+
   heroButtons.forEach(function (button) {
     button.addEventListener('click', function () {
       selectHeroAmount(Number(button.dataset.heroAmount));
     });
   });
 
+  monthlyBtn.addEventListener('click', function () { setMode('monthly'); });
+  oneoffBtn.addEventListener('click', function () { setMode('oneoff'); });
+
   selectHeroAmount(currentAmount);
+  setMode('monthly');
 
   const revealItems = Array.from(document.querySelectorAll('[data-reveal]'));
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
