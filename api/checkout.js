@@ -7,7 +7,7 @@ export default async function handler(req, res) {
   let donation;
   try { donation = donationInput(typeof req.body === 'string' ? JSON.parse(req.body) : req.body); }
   catch (error) { return res.status(400).json({error:error.message}); }
-  if (!configured()) return res.status(503).json({error:'Secure checkout is not fully connected yet, so custom amounts, one-time gifts and USD are temporarily unavailable. To give now, switch to GBP + Monthly and choose a preset.'});
+  if (!configured()) return res.status(503).json({error:'Secure checkout is still being connected. Please try again soon, or choose a GBP monthly preset.'});
   try {
     const session = await stripeClient().checkout.sessions.create(checkoutParams(donation, siteUrl()), {idempotencyKey:`sc-donation-${donation.requestId}`});
     return res.status(200).json({url:session.url});

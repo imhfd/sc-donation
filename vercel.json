@@ -2,9 +2,10 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": null,
+  "crons": [{"path":"/api/reconcile","schedule":"0 5 * * *"}],
   "headers": [{"source":"/(.*)","headers":[
     {"key":"X-Content-Type-Options","value":"nosniff"},
     {"key":"Referrer-Policy","value":"strict-origin-when-cross-origin"},
-    {"key":"Content-Security-Policy","value":"default-src 'self'; script-src 'self' https://*.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://sacred-chronicles.vercel.app data:; connect-src 'self' https://*.stripe.com; frame-src https://*.stripe.com https://*.link.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self' https://checkout.stripe.com"}
+    {"key":"Content-Security-Policy","value":"default-src 'self'; script-src 'self' https://*.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://sacred-chronicles.vercel.app data:; connect-src 'self' https://sc-donation.vercel.app https://*.stripe.com https://data-api.ecb.europa.eu; frame-src https://*.stripe.com https://*.link.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self' https://checkout.stripe.com"}
   ]}]
 }

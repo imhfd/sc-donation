@@ -52,10 +52,16 @@ function pulseAmount(button) {
   void button.offsetWidth;
   button.classList.add('amount-pop');
 }
+function replay(element, className) {
+  element.classList.remove(className);
+  void element.offsetWidth;
+  element.classList.add(className);
+}
 document.querySelectorAll('[data-mode]').forEach(button => button.addEventListener('click', () => {
   if (mode === button.dataset.mode) return;
   mode = button.dataset.mode; render({animateAmount:true});
-  const note = $('frequency-note'); note.classList.remove('note-enter'); void note.offsetWidth; note.classList.add('note-enter');
+  replay($('frequency-note'), 'note-enter');
+  replay($('commitment'), 'note-enter');
 }));
 document.querySelectorAll('[data-amount]').forEach(button => button.addEventListener('click', () => { selected = button.dataset.amount; custom.value = ''; render({animateAmount:true}); pulseAmount(button); }));
 custom.addEventListener('input', () => render({animateAmount:true})); currency.addEventListener('change', () => render({animateAmount:true}));
@@ -72,10 +78,9 @@ $('donation-form').addEventListener('submit', async (event) => {
   try { sessionStorage.setItem('sc-donation-attempt', JSON.stringify(attempt)); } catch { /* In-memory retry still works. */ }
   busy = true; $('donation-controls').disabled = true; $('checkout-button-label').textContent = 'Opening secure checkout…'; announce('');
   try {
-    if (!apiReady && selection.currency === 'gbp' && selection.mode === 'monthly' && monthlyLinks[unitAmount / 100]) { window.location.assign(monthlyLinks[unitAmount / 100]); return; }
-    if (!apiReady) throw new Error('Secure checkout is not connected to this site yet, so custom amounts, one-time gifts and USD are temporarily unavailable. To give now, switch to GBP + Monthly and choose a preset.');
     const response = await fetch(endpoint('checkout'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...selection, requestId: attempt.requestId }), signal: AbortSignal.timeout(20000) });
     const result = await response.json().catch(() => ({}));
+    if (!response.ok && response.status === 503 && !apiReady && selection.currency === 'gbp' && selection.mode === 'monthly' && monthlyLinks[unitAmount / 100]) { window.location.assign(monthlyLinks[unitAmount / 100]); return; }
     if (!response.ok) throw new Error(result.error || 'Secure checkout is temporarily unavailable. Please try again.');
     const checkout = new URL(result.url);
     if (checkout.protocol !== 'https:' || checkout.hostname !== 'checkout.stripe.com') throw new Error('Unable to open secure checkout. Please try again.');
@@ -87,15 +92,73 @@ $('donation-form').addEventListener('submit', async (event) => {
 });
 window.addEventListener('pageshow', (event) => { if (!event.persisted) return; busy = false; $('donation-controls').disabled = false; render(); });
 const goal = Number(campaign.goal);
-$('goal-label').textContent = Number.isFinite(goal) && goal > 0 ? `${money(goal * 100, campaign.currency)} goal (${campaign.currency.toUpperCase()})` : '';
-if (typeof campaign.raised === 'number' && campaign.raised >= 0 && goal > 0) {
-  const percent = Math.min(100, campaign.raised / goal * 100);
-  $('raised-label').textContent = `${money(Math.round(campaign.raised * 100), campaign.currency)} raised`;
-  $('progress-fill').style.width = `${percent}%`;
-  $('progress-track').setAttribute('role', 'progressbar'); $('progress-track').setAttribute('aria-label', 'Campaign fundraising progress');
-  $('progress-track').setAttribute('aria-valuenow', String(percent)); $('progress-track').setAttribute('aria-valuemin', '0'); $('progress-track').setAttribute('aria-valuemax', '100');
-  $('progress-note').textContent = `${Math.floor(percent)}% of our goal${Number.isInteger(campaign.supporters) && campaign.supporters >= 0 ? ` · ${campaign.supporters.toLocaleString()} supporters` : ''}${campaign.updatedAt ? ` · Updated ${campaign.updatedAt}` : ''}`;
-} else $('progress-track').classList.add('is-unpublished');
+const goalMinor = Math.round(goal * 100);
+$('goal-label').textContent = Number.isFinite(goal) && goal > 0 ? `${money(goalMinor, campaign.currency)} USD goal` : '';
+let latestRaisedMinor = null, displayedRaisedMinor = 0, progressVisible = false, progressFrame = 0;
+const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+function paintRaised(value) {
+  displayedRaisedMinor = value;
+  $('raised-label').textContent = `${money(Math.round(value), 'usd')} raised`;
+}
+function animateRaised(target, initial = false) {
+  if (progressFrame) cancelAnimationFrame(progressFrame);
+  const from = initial ? 0 : displayedRaisedMinor;
+  if (reducedMotion || from === target) {
+    paintRaised(target);
+    $('progress-fill').style.width = `${Math.min(100, target / goalMinor * 100)}%`;
+    return;
+  }
+  const started = performance.now();
+  const fill = $('progress-fill');
+  fill.style.transition = 'none';
+  fill.style.width = `${Math.min(100, from / goalMinor * 100)}%`;
+  requestAnimationFrame(() => {
+    fill.style.transition = 'width 900ms cubic-bezier(0.16,1,0.3,1)';
+    fill.style.width = `${Math.min(100, target / goalMinor * 100)}%`;
+  });
+  const tick = now => {
+    const p = Math.min(1, (now - started) / 1400);
+    const eased = 1 - Math.pow(1 - p, 3);
+    paintRaised(from + (target - from) * eased);
+    if (p < 1) progressFrame = requestAnimationFrame(tick);
+    else { progressFrame = 0; paintRaised(target); }
+  };
+  progressFrame = requestAnimationFrame(tick);
+}
+function publishProgress(data) {
+  if (!data?.published || data.currency !== 'usd' || !Number.isSafeInteger(data.raisedUsdMinor) || goalMinor <= 0) return;
+  if (latestRaisedMinor === data.raisedUsdMinor) return;
+  const first = latestRaisedMinor === null;
+  latestRaisedMinor = data.raisedUsdMinor;
+  $('campaign-progress').classList.add('has-progress');
+  $('progress-track').classList.remove('is-unpublished');
+  $('progress-track').setAttribute('role', 'progressbar');
+  $('progress-track').setAttribute('aria-label', 'Campaign fundraising progress');
+  $('progress-track').setAttribute('aria-valuemin', '0');
+  $('progress-track').setAttribute('aria-valuemax', '100');
+  const percent = data.raisedUsdMinor / goalMinor * 100;
+  $('progress-track').setAttribute('aria-valuenow', String(Math.min(100, percent)));
+  const refreshed = data.updatedAt ? new Date(data.updatedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',timeZone:'UTC'}) : '';
+  $('progress-note').textContent = `${percent.toFixed(1)}% funded${refreshed ? ` · Updated ${refreshed}` : ''}`;
+  if (progressVisible) animateRaised(data.raisedUsdMinor, first);
+}
+if ('IntersectionObserver' in window) {
+  new IntersectionObserver(entries => {
+    if (!entries[0].isIntersecting || progressVisible) return;
+    progressVisible = true;
+    if (latestRaisedMinor !== null) animateRaised(latestRaisedMinor, true);
+  }, {threshold:0.15}).observe($('campaign-progress'));
+} else progressVisible = true;
+async function refreshProgress() {
+  try {
+    const response = await fetch(endpoint('progress'), {signal:AbortSignal.timeout(8000)});
+    if (!response.ok) return;
+    publishProgress(await response.json());
+  } catch { /* Keep the last verified total during brief network outages. */ }
+}
+refreshProgress();
+setInterval(() => { if (document.visibilityState === 'visible') refreshProgress(); }, 30000);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') refreshProgress(); });
 document.querySelectorAll('.share-button').forEach(button => button.addEventListener('click', async () => {
   const share = { title: 'Help fund the next Sacred Chronicles film', text: 'Our history. A future we build together.', url: campaign.shareUrl };
   try { if (navigator.share) { await navigator.share(share); return; } } catch (error) { if (error.name === 'AbortError') return; }

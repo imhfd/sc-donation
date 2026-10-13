@@ -1,6 +1,6 @@
 # Sacred Chronicles donation page
 
-The existing HTML site and brand are preserved. The mobile-first campaign section adds monthly/one-time giving, GBP/USD, custom amounts, native sharing, copy-link fallback, and honest campaign progress. The configurable goal is $100,000 USD. No unverified totals or supporter counts are displayed.
+The existing site and brand are preserved. The campaign supports monthly and one-time GBP/USD gifts with custom amounts through Stripe Checkout. Verified progress is stored in Neon Postgres; incomplete totals and supporter counts are never displayed.
 
 ## Development
 
@@ -13,30 +13,18 @@ npm run build
 npm run dev
 ```
 
-Open http://127.0.0.1:4173. The build emits only public assets to `dist/`; no backend code or secrets are copied there. GitHub Pages can continue serving the repository root. `api/` contains Vercel Node functions.
+Open http://127.0.0.1:4173. The build emits only public assets to `dist/`; server code in `api/` and `lib/` is not copied to the browser bundle.
 
-## Why custom amounts currently fail on the public site
+## Backend setup
 
-The public site is on GitHub Pages, which cannot run the server-side Stripe functions. The Checkout backend is implemented under `api/`, but it is not yet connected to the public site. That is why custom gifts, one-time gifts and USD checkout cannot complete yet; it is a hosting configuration issue, not a problem with the amount entered. The page now says this clearly. Four original GBP monthly presets still use active Stripe Payment Links verified on 13 October 2026. The original one-time custom-amount link is under **Other ways to give** and asks the donor to choose their amount on Stripe.
+The public page stays on GitHub Pages and calls the Vercel API at `https://sc-donation.vercel.app`. A free Neon database has been created in London; connect it to the Vercel project so Vercel can supply `DATABASE_URL`. Configure these sensitive server-side values in Vercel: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `DATABASE_URL`, and `CRON_SECRET`. Also set `SITE_URL=https://donation.sacredchronicles.online` and `ALLOWED_ORIGIN=https://donation.sacredchronicles.online`. Use a restricted Stripe key. Never commit credentials.
 
-These links use Stripe's existing hosted confirmation pages. New Checkout success/cancel handling applies to sessions created by the API.
+Create a Stripe webhook at `https://sc-donation.vercel.app/api/webhook` and subscribe to `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`, `invoice.paid`, `invoice.payment_failed`, `charge.captured`, `charge.succeeded`, `charge.updated`, `charge.refunded`, `refund.created`, `refund.failed`, `refund.updated`, `charge.dispute.created`, `charge.dispute.updated`, `charge.dispute.closed`, `charge.dispute.funds_withdrawn`, and `charge.dispute.funds_reinstated`. Save its signing secret in Vercel as `STRIPE_WEBHOOK_SECRET`.
 
-## Required backend activation
+The daily Vercel Cron job at `/api/reconcile` verifies the existing campaign links and paid subscription invoices, then reconciles captured charges from 1 August 2026 onward. It includes invoices from campaign subscriptions even when an invoice was created before the reporting period but paid during it. Progress stays unpublished until the first reconciliation succeeds. Webhook updates are signature-checked, transactional and idempotent. USD gifts use face value; GBP gifts use the closest ECB daily USD/GBP reference rate on or before the payment date for campaign reporting.
 
-1. Connect **imhfd/sc-donation** to the Vercel account using `vercel.json` (Other framework). The GitHub Vercel App must have access to this repository. No domain migration is needed: keep GitHub Pages and use the Vercel deployment as the API backend.
-2. Add sensitive server-side environment variables `STRIPE_SECRET_KEY` (prefer a restricted key with Checkout Sessions write/read and the Prices, Products, Customers, Subscriptions and PaymentIntents permissions needed by inline-price Checkout), `SITE_URL=https://donation.sacredchronicles.online`, and `ALLOWED_ORIGIN=https://donation.sacredchronicles.online`. Use a sandbox/test key first. Never commit a real key.
-3. Add a Stripe webhook for `https://<deployment>/api/webhook`, subscribe to the events below, and save its signing secret as sensitive `STRIPE_WEBHOOK_SECRET`. Redeploy. The API refuses new sessions until both Stripe credentials and SITE_URL are configured.
-4. Set `apiBase` in `config.js` to the backend HTTPS origin and push. If moving the full website to Vercel instead, leave `apiBase` empty and use the same-origin API. For a cross-origin backend hosted frontend, add that exact origin to `connect-src` in the CSP.
-5. Verify sandbox one-time and monthly gifts, decimal custom amounts in GBP/USD, failed/3DS payments, cancellation and signed webhook delivery. Then configure the matching live credentials and live webhook. No live payment has been claimed or made by this implementation.
+No test or live charge has been made by this code change. Verify one-time, monthly, custom GBP/USD, failure, cancellation, refund and dispute behavior in Stripe test mode before enabling live checkout.
 
-Webhook events: `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`, `invoice.paid`, `invoice.payment_failed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`.
+## Campaign settings
 
-Stripe remains the durable transaction/subscription ledger and manages renewals. The signature-verified webhook logs only event ID/type/status for operational monitoring; repeated delivery has no payment or totals side effects. No donor information is exposed or persisted by this site. Monitor payment failures in Stripe and enable Stripe's receipt, subscription-management and failed-payment email settings as appropriate. There is no order/access fulfillment for these voluntary gifts. If adding automated public totals or other post-payment effects later, store processed event IDs and update a durable ledger transactionally before acknowledging events.
-
-Tax is not automatically added; assess the treatment of contributions for this business before enabling Stripe Tax or changing donation pricing. The amount sent by this integration is exactly the amount displayed.
-
-## Campaign configuration
-
-Edit `config.js`: `goal` and `currency` define the $100,000 USD target. `raised`, `supporters`, and `updatedAt` remain empty until a verified, persistent Stripe reconciliation and conversion source is connected. Unknown progress is explicitly labelled rather than presented as 0% funded. Donations in GBP do not get relabelled as USD.
-
-Payment marks: Visa/Mastercard SVGs from [svg-credit-card-payment-icons](https://github.com/aaronfagan/svg-credit-card-payment-icons), used solely to identify payment methods. Card/wallet availability depends on Stripe settings, location and device. The original Sacred Chronicles logo, photographs and story content are reused.
+`config.js` defines the $100,000 USD goal and API origin. Raised totals are served by the verified backend; they are never hard-coded into the public page.
