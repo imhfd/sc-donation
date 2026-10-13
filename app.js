@@ -6,8 +6,17 @@ const custom = $('custom-amount'), currency = $('currency'), message = $('form-m
 const money = (minor, code = currency.value) => new Intl.NumberFormat(code === 'gbp' ? 'en-GB' : 'en-US', { style: 'currency', currency: code.toUpperCase(), minimumFractionDigits: minor % 100 ? 2 : 0, maximumFractionDigits: 2 }).format(minor / 100);
 const endpoint = (path) => `${campaign.apiBase.replace(/\/$/, '')}/api/${path}`;
 function currentAmount() { return custom.value.trim() || selected; }
-function render() {
+function announce(messageText) {
+  message.textContent = messageText;
+  if (!messageText) return;
+  message.classList.remove('message-enter');
+  void message.offsetWidth;
+  message.classList.add('message-enter');
+}
+function render({animateAmount = false} = {}) {
   const symbol = currency.value === 'gbp' ? '£' : '$';
+  const modeToggle = document.querySelector('.mode-toggle');
+  modeToggle.dataset.selection = mode;
   document.querySelectorAll('[data-mode]').forEach(button => { const active = button.dataset.mode === mode; button.classList.toggle('selected', active); button.setAttribute('aria-pressed', String(active)); });
   document.querySelectorAll('[data-amount]').forEach(button => {
     const active = !custom.value && button.dataset.amount === selected;
@@ -20,36 +29,60 @@ function render() {
   $('amount-hint').textContent = `From ${symbol}1. Every contribution matters.`;
   $('frequency-note').textContent = mode === 'monthly' ? 'A steady gift. A lasting difference.' : 'One gift. A story that lives on.';
   $('commitment').textContent = mode === 'monthly' ? 'Monthly support. Change or cancel anytime.' : 'A one-time gift. No recurring payments.';
-  try { $('checkout-button').textContent = `Donate ${money(toMinorUnits(currentAmount()))}${mode === 'monthly' ? '/month' : ''} →`; }
-  catch { $('checkout-button').textContent = 'Enter a valid amount →'; }
-  message.textContent = ''; custom.removeAttribute('aria-invalid');
+  const amountIsPremium = currency.value === 'usd' && Number(currentAmount()) === 50;
+  const card = document.querySelector('.donation-card');
+  card.classList.toggle('is-premium', amountIsPremium);
+  card.dataset.mode = mode;
+  card.dataset.currency = currency.value;
+  const label = $('checkout-button-label');
+  try {
+    const nextLabel = `Donate ${money(toMinorUnits(currentAmount()))}${mode === 'monthly' ? '/month' : ''}`;
+    const changed = label.textContent !== nextLabel;
+    label.textContent = nextLabel;
+    if (animateAmount && changed) {
+      label.classList.remove('cta-enter');
+      void label.offsetWidth;
+      label.classList.add('cta-enter');
+    }
+  } catch { $('checkout-button-label').textContent = 'Enter a valid amount'; }
+  message.textContent = ''; message.classList.remove('message-enter'); custom.removeAttribute('aria-invalid');
 }
-document.querySelectorAll('[data-mode]').forEach(button => button.addEventListener('click', () => { mode = button.dataset.mode; render(); }));
-document.querySelectorAll('[data-amount]').forEach(button => button.addEventListener('click', () => { selected = button.dataset.amount; custom.value = ''; render(); }));
-custom.addEventListener('input', render); currency.addEventListener('change', render);
+function pulseAmount(button) {
+  button.classList.remove('amount-pop');
+  void button.offsetWidth;
+  button.classList.add('amount-pop');
+}
+document.querySelectorAll('[data-mode]').forEach(button => button.addEventListener('click', () => {
+  if (mode === button.dataset.mode) return;
+  mode = button.dataset.mode; render({animateAmount:true});
+  const note = $('frequency-note'); note.classList.remove('note-enter'); void note.offsetWidth; note.classList.add('note-enter');
+}));
+document.querySelectorAll('[data-amount]').forEach(button => button.addEventListener('click', () => { selected = button.dataset.amount; custom.value = ''; render({animateAmount:true}); pulseAmount(button); }));
+custom.addEventListener('input', () => render({animateAmount:true})); currency.addEventListener('change', () => render({animateAmount:true}));
 let attempt;
 try { attempt = JSON.parse(sessionStorage.getItem('sc-donation-attempt')); } catch { /* Storage may be unavailable. */ }
 $('donation-form').addEventListener('submit', async (event) => {
   event.preventDefault(); if (busy) return;
   let unitAmount;
   try { unitAmount = toMinorUnits(currentAmount()); }
-  catch (error) { message.textContent = error.message; custom.setAttribute('aria-invalid', 'true'); custom.focus(); return; }
+  catch (error) { announce(error.message); custom.setAttribute('aria-invalid', 'true'); custom.focus(); return; }
   const selection = { amount: (unitAmount / 100).toFixed(2), currency: currency.value, mode };
   const fingerprint = JSON.stringify(selection);
   if (!attempt || attempt.fingerprint !== fingerprint || Date.now() - attempt.created > 30 * 60 * 1000) attempt = { fingerprint, requestId: crypto.randomUUID(), created: Date.now() };
   try { sessionStorage.setItem('sc-donation-attempt', JSON.stringify(attempt)); } catch { /* In-memory retry still works. */ }
-  busy = true; $('donation-controls').disabled = true; $('checkout-button').textContent = 'Opening secure checkout…'; message.textContent = '';
+  busy = true; $('donation-controls').disabled = true; $('checkout-button-label').textContent = 'Opening secure checkout…'; announce('');
   try {
     if (!apiReady && selection.currency === 'gbp' && selection.mode === 'monthly' && monthlyLinks[unitAmount / 100]) { window.location.assign(monthlyLinks[unitAmount / 100]); return; }
+    if (!apiReady) throw new Error('Secure checkout is not connected to this site yet, so custom amounts, one-time gifts and USD are temporarily unavailable. To give now, switch to GBP + Monthly and choose a preset.');
     const response = await fetch(endpoint('checkout'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...selection, requestId: attempt.requestId }), signal: AbortSignal.timeout(20000) });
     const result = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(result.error || 'This amount is not available online yet. Please choose a GBP monthly preset, or use “Other ways to give” below for a one-time gift.');
+    if (!response.ok) throw new Error(result.error || 'Secure checkout is temporarily unavailable. Please try again.');
     const checkout = new URL(result.url);
     if (checkout.protocol !== 'https:' || checkout.hostname !== 'checkout.stripe.com') throw new Error('Unable to open secure checkout. Please try again.');
     window.location.assign(checkout.href);
   } catch (error) {
     $('donation-controls').disabled = false; busy = false; render();
-    message.textContent = error.name === 'TimeoutError' ? 'Checkout took too long. Please retry; your request will not be duplicated.' : error.message === 'Failed to fetch' ? 'Unable to connect. Check your connection and try again.' : error.message;
+    announce(error.name === 'TimeoutError' ? 'Checkout took too long. Please retry; your request will not be duplicated.' : error.message === 'Failed to fetch' ? 'Unable to connect. Check your connection and try again.' : error.message);
   }
 });
 window.addEventListener('pageshow', (event) => { if (!event.persisted) return; busy = false; $('donation-controls').disabled = false; render(); });
@@ -69,7 +102,14 @@ document.querySelectorAll('.share-button').forEach(button => button.addEventList
   try { await navigator.clipboard.writeText(share.url); $('share-status').textContent = 'Campaign link copied. Thank you for spreading the word!'; }
   catch { $('share-link').hidden = false; $('share-link').value = share.url; $('share-link').focus(); $('share-link').select(); $('share-status').textContent = 'Copy this link to share the campaign.'; }
 }));
-if ('IntersectionObserver' in window) new IntersectionObserver(entries => { document.querySelector('.mobile-donate').classList.toggle('is-hidden', entries[0].isIntersecting); }, {threshold:0.15}).observe($('donate'));
+if ('IntersectionObserver' in window) {
+  new IntersectionObserver(entries => { document.querySelector('.mobile-donate').classList.toggle('is-hidden', entries[0].isIntersecting); }, {threshold:0.15}).observe($('donate'));
+  document.body.classList.add('motion-ready');
+  const reveal = new IntersectionObserver(entries => entries.forEach(entry => {
+    if (entry.isIntersecting) { entry.target.classList.add('is-visible'); reveal.unobserve(entry.target); }
+  }), {threshold:0.12});
+  document.querySelectorAll('section.rv').forEach(section => reveal.observe(section));
+}
 render();
 fetch(endpoint('health'), {signal: AbortSignal.timeout(5000)}).then(r => r.ok ? r.json() : null).then(data => { apiReady = data?.checkoutReady === true; }).catch(() => {});
 const params = new URLSearchParams(location.search);

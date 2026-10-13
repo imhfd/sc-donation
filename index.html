@@ -109,11 +109,12 @@
   <fieldset id="donation-controls"><legend class="sr-only">Choose your donation</legend>
   <div class="mode-toggle" aria-label="Donation frequency"><button type="button" data-mode="monthly" aria-pressed="true" class="selected">Monthly <span aria-hidden="true">♡</span></button><button type="button" data-mode="once" aria-pressed="false">One-time</button></div>
   <p id="frequency-note" class="frequency-note">A steady gift. A lasting difference.</p>
+  <p class="mission-note">Help us research, film and share stories that benefit the Ummah.</p>
   <div class="amount-heading"><label>Choose your amount</label><select id="currency" aria-label="Donation currency"><option value="gbp">GBP £</option><option value="usd">USD $</option></select></div>
-  <div class="amount-grid" aria-label="Suggested donation amounts"><button type="button" data-amount="5" aria-pressed="false" class="amount-button"><strong>£5</strong><span>/ month</span></button><button type="button" data-amount="10" aria-pressed="true" class="amount-button selected"><strong>£10</strong><span>/ month</span></button><button type="button" data-amount="30" aria-pressed="false" class="amount-button"><strong>£30</strong><span>/ month</span></button><button type="button" data-amount="50" aria-pressed="false" class="amount-button"><strong>£50</strong><span>/ month</span></button></div>
+  <div class="amount-grid" aria-label="Suggested donation amounts"><button type="button" data-amount="5" aria-pressed="false" class="amount-button"><strong>£5</strong><span>/ month</span></button><button type="button" data-amount="10" aria-pressed="true" class="amount-button selected"><strong>£10</strong><span>/ month</span></button><button type="button" data-amount="30" aria-pressed="false" class="amount-button"><strong>£30</strong><span>/ month</span></button><button type="button" data-amount="50" aria-pressed="false" class="amount-button premium-amount"><strong>£50</strong><span>/ month</span></button></div>
   <label class="custom-label" for="custom-amount">Or give another amount</label><div class="custom-wrap"><span id="currency-symbol" aria-hidden="true">£</span><input id="custom-amount" name="amount" inputmode="decimal" type="text" autocomplete="off" placeholder="Enter amount" aria-describedby="amount-hint form-message" maxlength="8"/><span id="custom-unit">/ month</span></div>
   <p class="amount-hint" id="amount-hint">From £1. Every contribution matters.</p>
-  <button class="checkout-button" id="checkout-button" type="submit">Donate £10/month <span aria-hidden="true">→</span></button>
+  <button class="checkout-button" id="checkout-button" type="submit"><span id="checkout-button-label" aria-live="polite">Donate £10/month</span><span aria-hidden="true">→</span></button>
   </fieldset>
   <p id="form-message" class="form-message" role="status" aria-live="polite"></p>
   <p class="commitment" id="commitment">Monthly support. Change or cancel anytime.</p>

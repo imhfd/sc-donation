@@ -1,6 +1,6 @@
 # Sacred Chronicles donation page
 
-The existing HTML site and brand are preserved. The new mobile-first campaign section adds monthly/one-time giving, GBP/USD, custom amounts, native sharing, copy-link fallback, and honest campaign progress. No unverified totals or supporter counts are displayed.
+The existing HTML site and brand are preserved. The mobile-first campaign section adds monthly/one-time giving, GBP/USD, custom amounts, native sharing, copy-link fallback, and honest campaign progress. The configurable goal is $100,000 USD. No unverified totals or supporter counts are displayed.
 
 ## Development
 
@@ -15,15 +15,15 @@ npm run dev
 
 Open http://127.0.0.1:4173. The build emits only public assets to `dist/`; no backend code or secrets are copied there. GitHub Pages can continue serving the repository root. `api/` contains Vercel Node functions.
 
-## Current live-site compatibility
+## Why custom amounts currently fail on the public site
 
-GitHub Pages cannot execute Stripe secret-key requests. Until a configured backend is deployed, the four original GBP monthly presets use existing, active Stripe Payment Links verified on 13 October 2026. The original one-time custom-amount link remains under **Other ways to give**, explicitly asking the donor to choose their amount on Stripe. Other selections fail with a clear message; they never send a different amount or silently change the donation mode.
+The public site is on GitHub Pages, which cannot run the server-side Stripe functions. The Checkout backend is implemented under `api/`, but it is not yet connected to the public site. That is why custom gifts, one-time gifts and USD checkout cannot complete yet; it is a hosting configuration issue, not a problem with the amount entered. The page now says this clearly. Four original GBP monthly presets still use active Stripe Payment Links verified on 13 October 2026. The original one-time custom-amount link is under **Other ways to give** and asks the donor to choose their amount on Stripe.
 
 These links use Stripe's existing hosted confirmation pages. New Checkout success/cancel handling applies to sessions created by the API.
 
 ## Required backend activation
 
-1. Import **imhfd/sc-donation** into the existing Vercel account using `vercel.json` (Other framework). No domain migration is needed: keep GitHub Pages and use the deployment as the API backend.
+1. Connect **imhfd/sc-donation** to the Vercel account using `vercel.json` (Other framework). The GitHub Vercel App must have access to this repository. No domain migration is needed: keep GitHub Pages and use the Vercel deployment as the API backend.
 2. Add sensitive server-side environment variables `STRIPE_SECRET_KEY` (prefer a restricted key with Checkout Sessions write/read and the Prices, Products, Customers, Subscriptions and PaymentIntents permissions needed by inline-price Checkout), `SITE_URL=https://donation.sacredchronicles.online`, and `ALLOWED_ORIGIN=https://donation.sacredchronicles.online`. Use a sandbox/test key first. Never commit a real key.
 3. Add a Stripe webhook for `https://<deployment>/api/webhook`, subscribe to the events below, and save its signing secret as sensitive `STRIPE_WEBHOOK_SECRET`. Redeploy. The API refuses new sessions until both Stripe credentials and SITE_URL are configured.
 4. Set `apiBase` in `config.js` to the backend HTTPS origin and push. If moving the full website to Vercel instead, leave `apiBase` empty and use the same-origin API. For a cross-origin backend hosted frontend, add that exact origin to `connect-src` in the CSP.
@@ -37,6 +37,6 @@ Tax is not automatically added; assess the treatment of contributions for this b
 
 ## Campaign configuration
 
-Edit `config.js`: `goal`, `currency`, and optionally `raised`, `supporters`, `updatedAt`. Values for raised/supporters must come from verified campaign records, not account-wide payment totals. A £100,000 configurable target is shown; unknown progress is explicitly labelled rather than presented as 0% funded. Donations in USD do not convert or relabel GBP campaign totals.
+Edit `config.js`: `goal` and `currency` define the $100,000 USD target. `raised`, `supporters`, and `updatedAt` remain empty until a verified, persistent Stripe reconciliation and conversion source is connected. Unknown progress is explicitly labelled rather than presented as 0% funded. Donations in GBP do not get relabelled as USD.
 
 Payment marks: Visa/Mastercard SVGs from [svg-credit-card-payment-icons](https://github.com/aaronfagan/svg-credit-card-payment-icons), used solely to identify payment methods. Card/wallet availability depends on Stripe settings, location and device. The original Sacred Chronicles logo, photographs and story content are reused.

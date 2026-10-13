@@ -1,8 +1,8 @@
 // Public campaign settings only. Never put Stripe secret keys in this file.
 export const campaign = {
   apiBase: '', // Set to your serverless deployment origin when keeping GitHub Pages.
-  currency: 'gbp',
-  goal: 100000, // Fundraising target; this is not a claimed amount raised.
+  currency: 'usd',
+  goal: 100000, // USD fundraising target; this is not a claimed amount raised.
   raised: null, // Populate only with verified totals in campaign.currency.
   supporters: null,
   updatedAt: null,
