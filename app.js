@@ -81,9 +81,17 @@ $('donation-form').addEventListener('submit', async (event) => {
     const response = await fetch(endpoint('checkout'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...selection, requestId: attempt.requestId }), signal: AbortSignal.timeout(20000) });
     const result = await response.json().catch(() => ({}));
     if (!response.ok && response.status === 503 && !apiReady && selection.currency === 'gbp' && selection.mode === 'monthly' && monthlyLinks[unitAmount / 100]) { window.location.assign(monthlyLinks[unitAmount / 100]); return; }
-    if (!response.ok && response.status === 503 && !apiReady && selection.currency === 'gbp' && selection.mode === 'once') {
-      const fallback = document.querySelector('.existing-checkout a')?.href;
-      if (fallback && new URL(fallback).hostname === 'donate.stripe.com') { window.location.assign(fallback); return; }
+    if (!response.ok && response.status === 503 && !apiReady && selection.currency === 'gbp') {
+      if (selection.mode === 'once') {
+        const fallback = document.querySelector('.existing-checkout a');
+        const details = fallback?.closest('details');
+        if (details) {
+          details.open = true;
+          requestAnimationFrame(() => { details.scrollIntoView({behavior:'smooth',block:'center'}); fallback.focus({preventScroll:true}); });
+        }
+        throw new Error('The one-time Stripe page cannot carry over this amount. Enter it again there to continue.');
+      }
+      if (selection.mode === 'monthly') throw new Error('Custom monthly checkout is still being connected. Choose a listed GBP monthly amount for now.');
     }
     if (!response.ok) throw new Error(result.error || 'Secure checkout is temporarily unavailable. Please try again.');
     const checkout = new URL(result.url);
