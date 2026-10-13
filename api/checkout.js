@@ -1,5 +1,5 @@
 import { donationInput } from '../lib/amount.js';
-import { stripeClient, configured, siteUrl, cors, checkoutParams } from '../lib/stripe.js';
+import { stripeClient, checkoutConfigured, siteUrl, cors, checkoutParams } from '../lib/stripe.js';
 export default async function handler(req, res) {
   if (!cors(req,res)) return;
   if (req.method !== 'POST') return res.status(405).json({error:'Use POST.'});
@@ -7,7 +7,7 @@ export default async function handler(req, res) {
   let donation;
   try { donation = donationInput(typeof req.body === 'string' ? JSON.parse(req.body) : req.body); }
   catch (error) { return res.status(400).json({error:error.message}); }
-  if (!configured()) return res.status(503).json({error:'Secure checkout is still being connected. Please try again soon, or choose a GBP monthly preset.'});
+  if (!checkoutConfigured()) return res.status(503).json({error:'Custom checkout is still being connected. Choose a listed GBP monthly amount or use the one-time Stripe link below.'});
   try {
     const session = await stripeClient().checkout.sessions.create(checkoutParams(donation, siteUrl()), {idempotencyKey:`sc-donation-${donation.requestId}`});
     return res.status(200).json({url:session.url});
