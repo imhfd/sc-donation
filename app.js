@@ -81,6 +81,10 @@ $('donation-form').addEventListener('submit', async (event) => {
     const response = await fetch(endpoint('checkout'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...selection, requestId: attempt.requestId }), signal: AbortSignal.timeout(20000) });
     const result = await response.json().catch(() => ({}));
     if (!response.ok && response.status === 503 && !apiReady && selection.currency === 'gbp' && selection.mode === 'monthly' && monthlyLinks[unitAmount / 100]) { window.location.assign(monthlyLinks[unitAmount / 100]); return; }
+    if (!response.ok && response.status === 503 && !apiReady && selection.currency === 'gbp' && selection.mode === 'once') {
+      const fallback = document.querySelector('.existing-checkout a')?.href;
+      if (fallback && new URL(fallback).hostname === 'donate.stripe.com') { window.location.assign(fallback); return; }
+    }
     if (!response.ok) throw new Error(result.error || 'Secure checkout is temporarily unavailable. Please try again.');
     const checkout = new URL(result.url);
     if (checkout.protocol !== 'https:' || checkout.hostname !== 'checkout.stripe.com') throw new Error('Unable to open secure checkout. Please try again.');
