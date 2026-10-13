@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {Readable} from 'node:stream';
 import {toMinorUnits,donationInput} from '../lib/amount.js';
-import {checkoutParams,stripeClient} from '../lib/stripe.js';
+import {checkoutParams,checkoutConfigured,stripeClient} from '../lib/stripe.js';
 import {eventStatus} from '../lib/events.js';
 import {netDonationMinor} from '../lib/ledger.js';
 import checkout from '../api/checkout.js';
@@ -30,6 +30,16 @@ test('checkout passes the same idempotency key for retries',async(t)=>{
  const calls=[];t.mock.method(stripeClient().checkout.sessions,'create',async(...args)=>{calls.push(args);return {url:'https://checkout.stripe.com/c/pay/test-only'}});
  for(let i=0;i<2;i++){const res=response();await checkout(req({amount:'20.55',mode:'once',currency:'usd',requestId}),res);assert.equal(res.statusCode,200)}
  assert.equal(calls[0][0].line_items[0].price_data.unit_amount,2055);assert.deepEqual(calls[0],calls[1]);assert.equal(calls[0][1].idempotencyKey,`sc-donation-${requestId}`);
+});
+test('custom checkout is not blocked by database, webhook, or cron configuration',async(t)=>{
+ const previous={DATABASE_URL:process.env.DATABASE_URL,CRON_SECRET:process.env.CRON_SECRET,STRIPE_WEBHOOK_SECRET:process.env.STRIPE_WEBHOOK_SECRET};
+ t.after(()=>{for(const [key,value] of Object.entries(previous))if(value===undefined)delete process.env[key];else process.env[key]=value});
+ process.env.STRIPE_SECRET_KEY='sk_test_checkout_only';
+ delete process.env.STRIPE_WEBHOOK_SECRET;delete process.env.DATABASE_URL;delete process.env.CRON_SECRET;
+ assert.equal(checkoutConfigured(),true);
+ const calls=[];t.mock.method(stripeClient().checkout.sessions,'create',async(...args)=>{calls.push(args);return {url:'https://checkout.stripe.com/c/pay/test-only'}});
+ const res=response();await checkout(req({amount:'25.50',mode:'monthly',currency:'gbp',requestId}),res);
+ assert.equal(res.statusCode,200);assert.equal(calls[0][0].line_items[0].price_data.unit_amount,2550);
 });
 test('pending asynchronous payments are never acknowledged as paid',()=>{assert.equal(eventStatus({type:'checkout.session.completed',data:{object:{payment_status:'unpaid'}}}),'donation_pending');assert.equal(eventStatus({type:'checkout.session.async_payment_succeeded',data:{object:{payment_status:'paid'}}}),'donation_paid');for(const type of ['invoice.paid','invoice.payment_failed','charge.captured','charge.refunded','refund.failed','refund.updated','charge.dispute.closed'])assert.ok(eventStatus({type,data:{object:{}}}))});
 test('refunds and active disputes reduce only captured donations',()=>{assert.equal(netDonationMinor(5000,1000,500,true),3500);assert.equal(netDonationMinor(5000,5000,0,true),0);assert.equal(netDonationMinor(5000,0,5000,true),0);assert.equal(netDonationMinor(5000,0,0,false),0)});
