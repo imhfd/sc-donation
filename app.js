@@ -78,6 +78,10 @@ $('donation-form').addEventListener('submit', async (event) => {
   try { sessionStorage.setItem('sc-donation-attempt', JSON.stringify(attempt)); } catch { /* In-memory retry still works. */ }
   busy = true; $('donation-controls').disabled = true; $('checkout-button-label').textContent = 'Opening secure checkout…'; announce('');
   try {
+    if (selection.mode === 'once' && selection.currency === 'gbp') {
+      const stripeLink = document.querySelector('.existing-checkout a')?.href;
+      if (stripeLink) { window.location.assign(stripeLink); return; }
+    }
     const response = await fetch(endpoint('checkout'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...selection, requestId: attempt.requestId }), signal: AbortSignal.timeout(20000) });
     const result = await response.json().catch(() => ({}));
     if (!response.ok && response.status === 503 && !apiReady && selection.currency === 'gbp' && selection.mode === 'monthly' && monthlyLinks[unitAmount / 100]) { window.location.assign(monthlyLinks[unitAmount / 100]); return; }
