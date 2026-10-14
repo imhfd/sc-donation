@@ -74,7 +74,17 @@
 }
 </script>
 <!-- Sacred Chronicles production images use the project's original site assets. No generated placeholder photography. -->
-</head>
+<style>
+.giving-panel{animation:gift-enter .35s ease both}
+.giving-panel[hidden]{display:none!important}
+.amount-grid a{text-decoration:none;text-align:center}
+.amount-grid a:hover,.amount-grid a:focus-visible{background:#365f49;color:#fff;border-color:#365f49;transform:translateY(-3px)}
+.amount-grid a:hover span,.amount-grid a:focus-visible span{color:#fff}
+.one-time-copy{font-size:14px;line-height:1.7;color:#777164;margin:18px 0 24px}
+a.checkout-button{text-decoration:none;box-sizing:border-box}
+@keyframes gift-enter{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){.giving-panel{animation:none}}
+</style></head>
 <body><a href="#donate" class="skip-link">Skip to donation form</a>
 <link crossorigin="anonymous" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
@@ -99,28 +109,26 @@
   <figure class="campaign-photo"><img src="https://sacred-chronicles.vercel.app/photos/hero-filming.jpg" alt="The Sacred Chronicles crew reviewing footage on a cinema camera among the palm groves" width="1200" height="800" fetchpriority="high"/><figcaption>On location with Sacred Chronicles <span>Behind every film, there’s you.</span></figcaption></figure>
   <div class="campaign-copy"><span class="eyebrow gold">Help tell the next story</span><h1 id="campaign-title">Our history.<br/>A future we <em>build together.</em></h1>
   <p>Help fund the next Sacred Chronicles film. Bring Muslim history to life through beautiful, carefully researched documentaries — free for everyone to watch.</p></div>
-  <div class="campaign-progress" id="campaign-progress"><div class="progress-heading"><span id="raised-label">Every contribution carries the story forward.</span><span id="goal-label"></span></div><div class="progress-track is-unpublished" id="progress-track" role="img" aria-label="Campaign progress is not yet published"><span id="progress-fill"></span></div><p id="progress-note">Campaign totals will appear here when verified.</p></div>
   <div class="campaign-actions"><a class="primary-button" href="#donate">Donate <span aria-hidden="true">↗</span></a><button class="secondary-button share-button" type="button">Share campaign <span aria-hidden="true">↗</span></button></div>
   <p class="share-status" aria-live="polite" id="share-status"></p><input id="share-link" aria-label="Campaign link to copy" readonly hidden/>
 </div>
 <aside class="donation-card" id="donate" aria-labelledby="donation-title" tabindex="-1">
   <div class="card-kicker"><span class="small-heart" aria-hidden="true">♡</span> Be part of the next chapter</div><h2 id="donation-title">Make a little go a long way.</h2><p class="card-intro">Your support brings these stories to life.</p>
-  <form id="donation-form" novalidate>
-  <fieldset id="donation-controls"><legend class="sr-only">Choose your donation</legend>
-  <div class="mode-toggle" aria-label="Donation frequency"><button type="button" data-mode="monthly" aria-pressed="true" class="selected">Monthly <span aria-hidden="true">♡</span></button><button type="button" data-mode="once" aria-pressed="false">One-time</button></div>
-  <p id="frequency-note" class="frequency-note">A steady gift. A lasting difference.</p>
+<div class="mode-toggle" data-selection="monthly" aria-label="Donation frequency"><button type="button" data-mode="monthly" aria-pressed="true" aria-controls="monthly-panel" class="selected">Monthly <span aria-hidden="true">♡</span></button><button type="button" data-mode="once" aria-pressed="false" aria-controls="once-panel">One-time</button></div>
   <p class="mission-note">Help us research, film and share stories that benefit the Ummah.</p>
-  <div class="amount-heading"><label>Choose your amount</label><select id="currency" aria-label="Donation currency"><option value="gbp">GBP £</option><option value="usd">USD $</option></select></div>
-  <div class="amount-grid" aria-label="Suggested donation amounts"><button type="button" data-amount="5" aria-pressed="false" class="amount-button"><strong>£5</strong><span>/ month</span></button><button type="button" data-amount="10" aria-pressed="true" class="amount-button selected"><strong>£10</strong><span>/ month</span></button><button type="button" data-amount="30" aria-pressed="false" class="amount-button"><strong>£30</strong><span>/ month</span></button><button type="button" data-amount="50" aria-pressed="false" class="amount-button premium-amount"><strong>£50</strong><span>/ month</span></button></div>
-  <label class="custom-label" for="custom-amount">Or give another amount</label><div class="custom-wrap"><span id="currency-symbol" aria-hidden="true">£</span><input id="custom-amount" name="amount" inputmode="decimal" type="text" autocomplete="off" placeholder="Enter amount" aria-describedby="amount-hint form-message" maxlength="8"/><span id="custom-unit">/ month</span></div>
-  <p class="amount-hint" id="amount-hint">From £1. Every contribution matters.</p>
-  <button class="checkout-button" id="checkout-button" type="submit"><span id="checkout-button-label" aria-live="polite">Donate £10/month</span><span aria-hidden="true">→</span></button>
-  </fieldset>
-  <p id="form-message" class="form-message" role="status" aria-live="polite"></p>
-  <p class="commitment" id="commitment">Monthly support. Change or cancel anytime.</p>
-  </form>
+  <div id="monthly-panel" class="giving-panel">
+    <p class="frequency-note">A steady gift. A lasting difference.</p>
+    <div class="amount-heading">Choose your monthly gift</div>
+    <div class="amount-grid" aria-label="Monthly donations"><a class="amount-button" href="https://donate.stripe.com/4gM14p9mafFf65b05a7IY06" aria-label="Donate £5 per month"><strong>£5</strong><span>/ month</span></a><a class="amount-button" href="https://donate.stripe.com/3cI00l9ma78JctzdW07IY03" aria-label="Donate £10 per month"><strong>£10</strong><span>/ month</span></a><a class="amount-button" href="https://donate.stripe.com/28EbJ3eGuboZ2SZ8BG7IY04" aria-label="Donate £30 per month"><strong>£30</strong><span>/ month</span></a><a class="amount-button" href="https://donate.stripe.com/6oU5kFbui64FbpvdW07IY07" aria-label="Donate £50 per month"><strong>£50</strong><span>/ month</span></a></div>
+    <p class="commitment">Monthly support. Change or cancel anytime.</p>
+  </div>
+  <div id="once-panel" class="giving-panel" hidden>
+    <p class="frequency-note">One gift. A story that lives on.</p>
+    <p class="one-time-copy">Choose the amount you’d like to give on Stripe’s secure donation page.</p>
+    <a class="checkout-button" href="https://donate.stripe.com/aFaaEZcymakVdxDbNS7IY08"><span>Donate once</span><span aria-hidden="true">→</span></a>
+    <p class="commitment">A one-time gift. No recurring payments.</p>
+  </div>
   <div class="payment-trust"><div class="payment-brands"><img src="assets/visa.svg" alt="Visa" width="43" height="28"/><img src="assets/mastercard.svg" alt="Mastercard" width="39" height="28"/><span class="wallet-label">Apple Pay<span class="sr-only"> where available</span></span></div><p><svg aria-hidden="true" width="13" height="14" viewBox="0 0 20 22" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="9" width="14" height="11" rx="2"/><path d="M6 9V6a4 4 0 0 1 8 0v3"/></svg> Secure payments powered by <strong>Stripe</strong></p><small>Available methods are shown at checkout.<br/>Apple Pay on supported devices.</small></div>
-  <details class="existing-checkout"><summary>Other ways to give</summary><p>Choose your one-time gift amount directly on our existing secure Stripe checkout.</p><a href="https://donate.stripe.com/aFaaEZcymakVdxDbNS7IY08" rel="noopener">Give once on Stripe ↗</a></details>
 </aside>
 </section>
 <div class="impact-strip"><p><span>01</span> Independently made</p><p><span>02</span> Community supported</p><p><span>03</span> Free for everyone</p></div>
@@ -265,7 +273,7 @@
 </div>
 <div style="position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 14px;">
 <a data-cta="final" href="#donate" style="display: flex; align-items: center; justify-content: center; min-width: 220px; min-height: 58px; padding: 0 40px; background: #F0EAD9; color: #0F0D0C; border-radius: 9px; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; letter-spacing: 0.2em; text-transform: uppercase;">Donate</a>
-<p style="margin: 0; font-size: 13px; color: rgba(240,234,217,0.68);">Secure monthly donation. Change or cancel at any time.</p>
+<p style="margin: 0; font-size: 13px; color: rgba(240,234,217,0.68);">Give monthly or once through secure Stripe checkout.</p>
 
 </div>
 </section>
@@ -292,6 +300,6 @@
 </div>
 </footer>
 
-<script type="module" src="app.js?v=20261014"></script>
+<script type="module" src="donation-links.js?v=20261014-2"></script>
 <div class="mobile-donate"><span>Help tell the next story.</span><a href="#donate">Donate ↗</a></div></body>
 </html>
